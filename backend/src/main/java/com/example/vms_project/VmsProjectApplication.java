@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class VmsProjectApplication {
 
 	public static void main(String[] args) {
+		System.out.println("ogulcan yazdi");
 		SpringApplication.run(VmsProjectApplication.class, args);
 	}
 

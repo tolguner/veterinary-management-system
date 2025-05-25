@@ -1,8 +1,10 @@
 package com.example.vms_project.services;
 
 import com.example.vms_project.dtos.requests.CustomerRegistrationRequest;
+import com.example.vms_project.dtos.requests.VeterinaryProfileUpdateRequest;
 import com.example.vms_project.entities.Customer;
 import com.example.vms_project.entities.Veterinary;
+import com.example.vms_project.entities.User;
 import com.example.vms_project.repositories.CustomerRepository;
 import com.example.vms_project.repositories.UserRepository;
 import com.example.vms_project.repositories.VeterinaryRepository;
@@ -33,7 +35,22 @@ public class VeterinaryService {
     }
 
     public List<Veterinary> getAllVeterinaries() {
-        return veterinaryRepository.findAllByOrderByClinicNameAsc();
+        return veterinaryRepository.findAll();
+    }
+
+    public Veterinary getVeterinaryByUsername(String username) {
+        return veterinaryRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı"));
+    }
+
+    public Veterinary updateVeterinaryProfile(String username, VeterinaryProfileUpdateRequest request) {
+        Veterinary veterinary = getVeterinaryByUsername(username);
+
+        veterinary.setClinicName(request.getClinicName());
+        veterinary.setAddress(request.getAddress());
+        veterinary.setPhoneNumber(request.getPhoneNumber());
+
+        return veterinaryRepository.save(veterinary);
     }
 
     public Customer registerCustomer(CustomerRegistrationRequest request) {
@@ -51,8 +68,8 @@ public class VeterinaryService {
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customer.setFullName(request.getFullName());
         customer.setPhoneNumber(request.getPhoneNumber());
-        customer.setEmail(request.getEmail());
         customer.setVeterinary(veterinaryOptional.get());
+        customer.setRole(User.Role.CUSTOMER);
 
         return customerRepository.save(customer);
     }

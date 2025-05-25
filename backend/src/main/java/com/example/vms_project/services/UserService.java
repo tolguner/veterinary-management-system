@@ -42,10 +42,9 @@ public class UserService {
 
         User user = userOptional.get();
 
-        // Müşteri girişi için veteriner kontrolü
         if (user.getRole() == User.Role.CUSTOMER) {
             if (loginRequest.getVeterinaryClinicName() == null) {
-                return null; // Veteriner seçilmediği durumda
+                return null;
             }
 
             Optional<Veterinary> veterinaryOptional =

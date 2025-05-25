@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 public class Customer extends User {
     private String fullName;
     private String phoneNumber;
+    private String email;
 
     @ManyToOne
     @JoinColumn(name = "veterinary_id")

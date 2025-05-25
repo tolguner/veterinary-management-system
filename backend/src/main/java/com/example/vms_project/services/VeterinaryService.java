@@ -51,6 +51,7 @@ public class VeterinaryService {
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customer.setFullName(request.getFullName());
         customer.setPhoneNumber(request.getPhoneNumber());
+        customer.setEmail(request.getEmail());
         customer.setVeterinary(veterinaryOptional.get());
 
         return customerRepository.save(customer);

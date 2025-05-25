@@ -1,14 +1,13 @@
 package com.example.vms_project.entities;
-import jakarta.persistence.*;
-import lombok.*;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public abstract class User {
-
+@DiscriminatorColumn(name = "user_type")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +18,10 @@ public abstract class User {
     @Column(nullable = false)
     private String password;
 
-    // Enum yerine string olarak rol
-    @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    public enum Role {
+        ADMIN, VETERINARY, CUSTOMER
+    }
 }

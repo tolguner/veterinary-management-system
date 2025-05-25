@@ -1,5 +1,8 @@
 package com.example.vms_project.dtos.responses;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 @Data
 @AllArgsConstructor
 public class AuthResponse {

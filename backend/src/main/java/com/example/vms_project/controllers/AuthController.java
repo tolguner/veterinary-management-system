@@ -1,5 +1,8 @@
 package com.example.vms_project.controllers;
 
+import com.example.vms_project.dtos.requests.AuthRequest;
+import com.example.vms_project.dtos.responses.AuthResponse;
+import com.example.vms_project.entities.User;
 import com.example.vms_project.repositories.UserRepository;
 import com.example.vms_project.security.JwtTokenUtil;
 import com.example.vms_project.services.CustomUserDetailsService;
@@ -35,11 +38,10 @@ public class AuthController {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );
+        User user = userRepository.findByUsername(authRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(userDetails);
-
-        User user = userRepository.findByUsername(authRequest.getUsername()).orElseThrow();
+        final String jwt = jwtTokenUtil.generateToken(user);
 
         AuthResponse response = new AuthResponse(jwt, user.getRole().toString());
 

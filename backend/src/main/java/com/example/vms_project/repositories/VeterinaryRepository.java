@@ -7,6 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VeterinaryRepository extends JpaRepository<Veterinary, Long> {
-    List<Veterinary> findAllOrderByClinicNameAsc();
+    List<Veterinary> findAllByOrderByClinicNameAsc();
     Optional<Veterinary> findByClinicName(String clinicName);
 }

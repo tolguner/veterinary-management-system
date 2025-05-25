@@ -7,6 +7,6 @@ public class VeterinaryRegistrationRequest {
     private String username;
     private String password;
     private String clinicName;
-    private string address;
+    private String address;
     private String phoneNumber;
 }

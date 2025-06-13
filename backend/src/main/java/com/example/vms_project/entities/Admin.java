@@ -11,9 +11,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @DiscriminatorValue("ADMIN")
 public class Admin extends User {
-    private String fullName;
-
-    public Admin() {
-        setRole(Role.ADMIN);
+    private String fullName;    public Admin() {
+        // Role service tarafından set edilecek
     }
 }

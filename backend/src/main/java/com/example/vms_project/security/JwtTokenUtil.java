@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -30,11 +29,9 @@ public class JwtTokenUtil {
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
-    }
-
-    public String generateToken(User user) {
+    }    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", user.getRole().name());
+        claims.put("roles", user.getRole().getName());
         claims.put("userId", user.getId());
         return createToken(claims, user.getUsername());
     }

@@ -18,17 +18,22 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    @Override
+    }    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
 
-        return new org.springframework.security.core.userdetails.User(
+        // Hesap aktif değilse erişim engelle
+        if (!user.isActive()) {
+            throw new RuntimeException("Hesap devre dışı bırakılmış: " + username);
+        }        return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                user.isActive(), // account enabled
+                true, // account non-expired
+                true, // credentials non-expired
+                true, // account non-locked
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName()))
         );
     }
 }

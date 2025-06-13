@@ -2,6 +2,9 @@ package com.example.vms_project.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -10,18 +13,31 @@ import lombok.Data;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+    private Long id;    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
-    private String password;
+    private String password;    // User'ın kişisel bilgileri
+    private String firstName;
+    private String lastName;
 
-    @Enumerated(EnumType.STRING)
+    // Role foreign key
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-
-    public enum Role {
-        ADMIN, VETERINARY, CUSTOMER
-    }
+    
+    // Hesap durumu
+    private boolean isActive = true;
+    
+    // Kayıt tarihi
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    
+    // Güncelleme tarihi
+    private LocalDateTime updatedAt;
+    
+    // Email alanı ekleyelim
+    @Column(unique = true)
+    private String email;
 }

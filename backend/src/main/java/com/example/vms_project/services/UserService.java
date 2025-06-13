@@ -7,7 +7,6 @@ import com.example.vms_project.entities.Veterinary;
 import com.example.vms_project.repositories.CustomerRepository;
 import com.example.vms_project.repositories.UserRepository;
 import com.example.vms_project.repositories.VeterinaryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +20,6 @@ public class UserService {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserService(UserRepository userRepository,
                        VeterinaryRepository veterinaryRepository,
                        CustomerRepository customerRepository,
@@ -39,10 +37,9 @@ public class UserService {
                 !passwordEncoder.matches(loginRequest.getPassword(), userOptional.get().getPassword())) {
             return null;
         }
-
         User user = userOptional.get();
 
-        if (user.getRole() == User.Role.CUSTOMER) {
+        if (user.getRole() != null && "CUSTOMER".equals(user.getRole().getName())) {
             if (loginRequest.getVeterinaryClinicName() == null) {
                 return null;
             }
@@ -65,5 +62,21 @@ public class UserService {
         }
 
         return user;
+    }
+
+    public User getUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("Kullanıcı bulunamadı: " + username);
+        }
+        return userOptional.get();
+    }
+
+    public User getUserById(Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("Kullanıcı bulunamadı: " + userId);
+        }
+        return userOptional.get();
     }
 }

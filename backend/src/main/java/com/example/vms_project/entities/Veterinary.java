@@ -3,6 +3,7 @@ package com.example.vms_project.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@ToString(exclude = {"customers"})
 @Entity
 @DiscriminatorValue("VETERINARY")
 public class Veterinary extends User {
@@ -46,12 +48,12 @@ public class Veterinary extends User {
     
     // Klinik durumu
     @Enumerated(EnumType.STRING)
-    private ClinicStatus status = ClinicStatus.PENDING;
-    
+    private ClinicStatus status = ClinicStatus.PENDING;    
     // Çalışma saatleri (genel)
     private String workingHours;
 
     @OneToMany(mappedBy = "veterinary", cascade = CascadeType.ALL)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Customer> customers = new ArrayList<>();
 
     public Veterinary() {

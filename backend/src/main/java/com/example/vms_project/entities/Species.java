@@ -1,9 +1,11 @@
 package com.example.vms_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@ToString(exclude = {"pets"})
 @Entity
 @Table(name = "species")
 @NoArgsConstructor
@@ -31,8 +34,8 @@ public class Species {
     
     @Column
     private boolean isActive = true; // Aktif türler için
-    
-    // Bu türe ait petler
+      // Bu türe ait petler
+    @JsonIgnore
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL)
     private List<Pet> pets = new ArrayList<>();
     

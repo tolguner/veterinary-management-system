@@ -50,4 +50,10 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
     
     // Son eklenen petler
     List<Pet> findTop10ByIsActiveTrueOrderByCreatedAtDesc();
+    
+    // Customer username ile petleri bul
+    List<Pet> findByOwnerUsername(String username);
+    
+    // Customer username ve pet ID ile spesifik pet bul
+    Optional<Pet> findByIdAndOwnerUsername(Long petId, String username);
 }

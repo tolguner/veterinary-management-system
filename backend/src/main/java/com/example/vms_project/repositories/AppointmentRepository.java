@@ -33,7 +33,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     
     // Veteriner ve status'a göre randevular
     List<Appointment> findByVeterinaryAndStatus(Veterinary veterinary, Appointment.AppointmentStatus status);
-      // Gelecek randevular (müşteri bazında)
+    
+    // Gelecek randevular (müşteri bazında)
     @Query("SELECT a FROM Appointment a WHERE a.customer = :customer " +
            "AND a.appointmentDate > :currentDate " +
            "ORDER BY a.appointmentDate ASC")
@@ -87,4 +88,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
            "GROUP BY YEAR(a.appointmentDate), MONTH(a.appointmentDate) " +
            "ORDER BY YEAR(a.appointmentDate) DESC, MONTH(a.appointmentDate) DESC")
     List<Object[]> getMonthlyAppointmentStats(@Param("veterinaryId") Long veterinaryId);
+    
+    // Veteriner ve tarih aralığı bazında randevular (çakışma kontrolü için)
+    List<Appointment> findByVeterinaryAndAppointmentDateBetween(Veterinary veterinary, LocalDateTime start, LocalDateTime end);
 }

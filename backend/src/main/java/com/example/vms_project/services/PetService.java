@@ -303,4 +303,20 @@ public class PetService {
         
         return convertToPetResponse(pet);
     }
+      // Müşterinin pet entity'lerini getir (Controller için)
+    public List<Pet> getPetEntitiesByCustomerId(Long customerId) {
+        System.out.println("=== getPetEntitiesByCustomerId called ===");
+        System.out.println("Customer ID: " + customerId);
+        
+        Customer customer = customerService.getCustomerEntityById(customerId);
+        System.out.println("Customer found: " + (customer != null ? customer.getFirstName() + " " + customer.getLastName() : "null"));
+        
+        List<Pet> pets = petRepository.findByOwnerAndIsActiveTrue(customer);
+        System.out.println("Pets from repository: " + (pets != null ? pets.size() : "null"));
+        if (pets != null) {
+            pets.forEach(pet -> System.out.println("Pet from DB: " + pet.getName() + " (ID: " + pet.getId() + ", Active: " + pet.isActive() + ")"));
+        }
+        
+        return pets;
+    }
 }

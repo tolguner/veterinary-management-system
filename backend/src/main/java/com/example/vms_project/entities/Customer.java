@@ -1,8 +1,10 @@
 package com.example.vms_project.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,15 +35,19 @@ public class Customer extends User {
     // Hesap durumu override (isActive User'dan geliyor)
 
     // Müşterinin kayıtlı olduğu veteriner
+    @ToString.Exclude // Sonsuz döngüyü önle
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "veterinary_id")
     private Veterinary veterinary;
     
     // Müşterinin sahip olduğu hayvanlar
+    @ToString.Exclude // Sonsuz döngüyü önle
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets = new ArrayList<>();
-    
+      
     // Müşterinin randevuları
+    @ToString.Exclude // Sonsuz döngüyü önle
+    @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
 

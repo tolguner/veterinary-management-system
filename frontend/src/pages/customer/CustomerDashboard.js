@@ -156,6 +156,14 @@ const CustomerDashboard = () => {
                     </button>
 
                     <button 
+                        className="action-btn medical-records"
+                        onClick={() => handleNavigate('/dashboard/customer/pet-medical-records')}
+                    >
+                        <i className="fas fa-file-medical"></i>
+                        <span>Tıbbi Kayıtlar</span>
+                    </button>
+
+                    <button 
                         className="action-btn profile"
                         onClick={() => handleNavigate('/dashboard/customer/profile')}
                     >

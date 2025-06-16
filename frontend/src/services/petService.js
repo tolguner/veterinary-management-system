@@ -1,15 +1,16 @@
 import apiClient from './apiClient';
 
-class PetService {  // Customer'ın kendi petlerini getir
+class PetService {
+  // Customer'ın kendi petlerini getir
   async getMyPets() {
     try {
       const response = await apiClient.get('/pets/my-pets');
-      return response.data;
+      return response;
     } catch (error) {
       console.error('getMyPets error:', error);
       throw error;
     }
-  }  // Customer için pet oluştur
+  }// Customer için pet oluştur
   async createMyPet(petData) {
     try {
       const response = await apiClient.post('/pets/my-pets', petData);

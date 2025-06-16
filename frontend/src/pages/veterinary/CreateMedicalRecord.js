@@ -1,0 +1,937 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import medicalRecordService from '../../services/medicalRecordService';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  Grid,
+  Alert,
+  Stepper,  Step,
+  StepLabel,
+  Autocomplete,
+  Divider,
+  IconButton,
+  Tooltip
+} from '@mui/material';
+import {
+  Save,
+  ArrowBack,
+  MedicalServices,
+  Vaccines,
+  LocalHospital,
+  Medication
+} from '@mui/icons-material';
+
+const CreateMedicalRecord = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const petIdFromUrl = searchParams.get('petId');
+  
+  const [customers, setCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customerPets, setCustomerPets] = useState([]);
+  const [selectedPet, setSelectedPet] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [recordType, setRecordType] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const [formData, setFormData] = useState({
+    // Common fields
+    petId: '',
+    recordType: '',
+    
+    // Analysis fields
+    analysisType: '',
+    laboratory: '',
+    temperature: '',
+    heartRate: '',
+    weight: '',
+    bloodPressure: '',
+    testResults: '',
+    normalRanges: '',
+    abnormalValues: '',
+    
+    // Vaccine fields
+    vaccineName: '',
+    manufacturer: '',
+    batchNumber: '',
+    doseAmount: '',
+    administrationRoute: '',
+    nextDueDate: '',
+      // Surgery fields
+    surgeryType: '',
+    surgeryDate: '',
+    surgeryDuration: '',
+    anesthesiaType: '',
+    surgicalNotes: '',
+    complications: '',
+    
+    // Prescription fields
+    medications: '',
+    dosage: '',
+    frequency: '',
+    duration: '',
+    instructions: '',
+    
+    // Common fields
+    diagnosis: '',
+    notes: '',
+    cost: ''
+  });
+
+  const steps = ['Müşteri Seç', 'Hayvan Seç', 'Kayıt Türü', 'Detaylar'];
+
+  const recordTypes = [
+    { value: 'ANALYSIS', label: 'Tahlil', icon: <MedicalServices /> },
+    { value: 'VACCINE', label: 'Aşı', icon: <Vaccines /> },
+    { value: 'SURGERY', label: 'Ameliyat', icon: <LocalHospital /> },
+    { value: 'PRESCRIPTION', label: 'Reçete', icon: <Medication /> }
+  ];
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  // Handle petId from URL
+  useEffect(() => {
+    if (petIdFromUrl && customers.length > 0) {
+      handlePetFromUrl(petIdFromUrl);
+    }
+  }, [petIdFromUrl, customers]);
+
+  const handlePetFromUrl = async (petId) => {
+    try {
+      // Tüm müşterilerin hayvanlarını kontrol et
+      for (const customer of customers) {
+        const pets = await medicalRecordService.getCustomerPets(customer.id);
+        const foundPet = pets.find(pet => pet.id.toString() === petId);
+        if (foundPet) {
+          setSelectedCustomer(customer);
+          setCustomerPets(pets);
+          setSelectedPet(foundPet);
+          setFormData(prev => ({ ...prev, petId: petId }));
+          setActiveStep(2); // Skip to record type selection
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('Error finding pet by URL:', error);
+    }
+  };  const loadCustomers = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading customers...');
+      const customers = await medicalRecordService.getVeterinaryCustomers();
+      console.log('Customers from service:', customers);
+      
+      // medicalRecordService.getVeterinaryCustomers() zaten response.data.data döndürüyor
+      if (Array.isArray(customers)) {
+        setCustomers(customers);
+        console.log('Customers set:', customers.length);
+      } else {
+        console.log('Customers is not an array:', customers);
+        setCustomers([]);
+      }
+    } catch (err) {
+      console.error('Load customers error:', err);
+      setError('Müşteriler yüklenirken hata oluştu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadCustomerPets = async (customerId) => {
+    try {
+      setLoading(true);
+      console.log('Loading pets for customer:', customerId);
+      const pets = await medicalRecordService.getCustomerPets(customerId);
+      console.log('Pets from service:', pets);
+      
+      // medicalRecordService.getCustomerPets() zaten response.data.data döndürüyor
+      if (Array.isArray(pets)) {
+        setCustomerPets(pets);
+        console.log('Pets set:', pets.length);
+      } else {
+        console.log('Pets is not an array:', pets);
+        setCustomerPets([]);
+      }
+    } catch (err) {
+      console.error('Load pets error:', err);
+      setError('Hayvanlar yüklenirken hata oluştu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+    setCustomerPets([]);
+    setSelectedPet(null);
+    if (customer) {
+      loadCustomerPets(customer.id);
+    }
+  };
+
+  const handlePetSelect = (pet) => {
+    setSelectedPet(pet);
+    setFormData(prev => ({ ...prev, petId: pet.id }));
+  };
+
+  const handleRecordTypeSelect = (type) => {
+    setRecordType(type);
+    setFormData(prev => ({ ...prev, recordType: type }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleNext = () => {
+    if (activeStep === 0 && !selectedCustomer) {
+      setError('Lütfen bir müşteri seçin');
+      return;
+    }
+    if (activeStep === 1 && !selectedPet) {
+      setError('Lütfen bir hayvan seçin');
+      return;
+    }
+    if (activeStep === 2 && !recordType) {
+      setError('Lütfen kayıt türünü seçin');
+      return;
+    }
+    
+    setError('');
+    setActiveStep(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep(prev => prev - 1);
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      setError('');
+      
+      console.log('=== FORM SUBMIT STARTED ===');
+      console.log('Form data being sent:', formData);
+      console.log('User token exists:', !!localStorage.getItem('authToken'));
+      
+      const response = await medicalRecordService.createMedicalRecord(formData);
+      
+      console.log('=== FORM SUBMIT RESPONSE ===');
+      console.log('Response received:', response);
+      console.log('Response success:', response?.success);
+      
+      if (response && response.success) {
+        setSuccess(response.message || 'Tıbbi kayıt başarıyla oluşturuldu');
+        console.log('=== SUCCESS - Redirecting to appointments ===');
+        setTimeout(() => {
+          navigate('/dashboard/appointments');
+        }, 2000);
+      } else {
+        const errorMessage = response?.message || 'Bilinmeyen bir hata oluştu';
+        setError(errorMessage);
+      }
+    } catch (err) {
+      console.error('=== FORM SUBMIT ERROR ===');
+      console.error('Error caught:', err);
+      console.error('Error response:', err.response);
+      console.error('Error status:', err.response?.status);
+      console.error('Error data:', err.response?.data);
+      
+      const errorMessage = err.response?.data?.message || err.message || 'Bilinmeyen bir hata oluştu';
+      setError('Kayıt oluşturulurken hata oluştu: ' + errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (activeStep) {
+      case 0:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Müşteri Seçin
+              </Typography>
+              <Autocomplete
+                options={customers}
+                getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                value={selectedCustomer}
+                onChange={(event, newValue) => handleCustomerSelect(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Müşteri ara..."
+                    fullWidth
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <Box component="li" {...props}>
+                    <Box>
+                      <Typography variant="body1">
+                        {option.firstName} {option.lastName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {option.email} • {option.phoneNumber}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+              />
+            </Grid>
+          </Grid>
+        );
+      
+      case 1:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Hayvan Seçin
+              </Typography>
+              {customerPets.length === 0 ? (
+                <Alert severity="info">
+                  Bu müşterinin kayıtlı hayvanı bulunmuyor.
+                </Alert>
+              ) : (
+                <Grid container spacing={2}>
+                  {customerPets.map((pet) => (
+                    <Grid item xs={12} sm={6} md={4} key={pet.id}>
+                      <Card 
+                        sx={{ 
+                          cursor: 'pointer',
+                          border: selectedPet?.id === pet.id ? 2 : 1,
+                          borderColor: selectedPet?.id === pet.id ? 'primary.main' : 'divider'
+                        }}
+                        onClick={() => handlePetSelect(pet)}
+                      >
+                        <CardContent>
+                          <Typography variant="h6">{pet.name}</Typography>
+                          <Typography color="text.secondary">
+                            {pet.species?.name} • {pet.breed}
+                          </Typography>
+                          <Typography variant="body2">
+                            {pet.age} yaş • {pet.gender}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </Grid>
+          </Grid>
+        );
+      
+      case 2:
+        return (
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Kayıt Türü Seçin
+              </Typography>
+              <Grid container spacing={2}>
+                {recordTypes.map((type) => (
+                  <Grid item xs={12} sm={6} md={3} key={type.value}>
+                    <Card 
+                      sx={{ 
+                        cursor: 'pointer',
+                        border: recordType === type.value ? 2 : 1,
+                        borderColor: recordType === type.value ? 'primary.main' : 'divider',
+                        textAlign: 'center',
+                        p: 2
+                      }}
+                      onClick={() => handleRecordTypeSelect(type.value)}
+                    >
+                      <CardContent>
+                        <Box sx={{ fontSize: 48, mb: 1 }}>
+                          {type.icon}
+                        </Box>
+                        <Typography variant="h6">{type.label}</Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          </Grid>
+        );
+      
+      case 3:
+        return renderDetailsForm();
+      
+      default:
+        return null;
+    }
+  };
+
+  const renderDetailsForm = () => {
+    switch (recordType) {
+      case 'ANALYSIS':
+        return renderAnalysisForm();
+      case 'VACCINE':
+        return renderVaccineForm();
+      case 'SURGERY':
+        return renderSurgeryForm();
+      case 'PRESCRIPTION':
+        return renderPrescriptionForm();
+      default:
+        return null;
+    }
+  };
+
+  const renderAnalysisForm = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom>
+          Tahlil Bilgileri
+        </Typography>
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Tahlil Türü"
+          name="analysisType"
+          value={formData.analysisType}
+          onChange={handleInputChange}
+          required
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Laboratuvar"
+          name="laboratory"
+          value={formData.laboratory}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Vücut Sıcaklığı (°C)"
+          name="temperature"
+          type="number"
+          value={formData.temperature}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Kalp Atışı"
+          name="heartRate"
+          type="number"
+          value={formData.heartRate}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Ağırlık (kg)"
+          name="weight"
+          type="number"
+          value={formData.weight}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={3}>
+        <TextField
+          fullWidth
+          label="Tansiyon"
+          name="bloodPressure"
+          value={formData.bloodPressure}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Test Sonuçları"
+          name="testResults"
+          multiline
+          rows={4}
+          value={formData.testResults}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Normal Değer Aralıkları"
+          name="normalRanges"
+          multiline
+          rows={3}
+          value={formData.normalRanges}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Anormal Değerler"
+          name="abnormalValues"
+          multiline
+          rows={3}
+          value={formData.abnormalValues}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Teşhis"
+          name="diagnosis"
+          multiline
+          rows={2}
+          value={formData.diagnosis}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Notlar"
+          name="notes"
+          multiline
+          rows={3}
+          value={formData.notes}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Maliyet (TL)"
+          name="cost"
+          type="number"
+          value={formData.cost}
+          onChange={handleInputChange}
+        />
+      </Grid>
+    </Grid>
+  );
+
+  const renderVaccineForm = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom>
+          Aşı Bilgileri
+        </Typography>
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Aşı Adı"
+          name="vaccineName"
+          value={formData.vaccineName}
+          onChange={handleInputChange}
+          required
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Üretici Firma"
+          name="manufacturer"
+          value={formData.manufacturer}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Seri No / Lot Numarası"
+          name="batchNumber"
+          value={formData.batchNumber}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Doz Miktarı"
+          name="doseAmount"
+          value={formData.doseAmount}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Uygulama Yolu"
+          name="administrationRoute"
+          select
+          value={formData.administrationRoute}
+          onChange={handleInputChange}
+        >
+          <MenuItem value="IM">Kas İçi (IM)</MenuItem>
+          <MenuItem value="SC">Deri Altı (SC)</MenuItem>
+          <MenuItem value="IV">Damar İçi (IV)</MenuItem>
+          <MenuItem value="ORAL">Ağızdan</MenuItem>
+          <MenuItem value="NASAL">Burundan</MenuItem>
+        </TextField>
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Sonraki Aşı Tarihi"
+          name="nextDueDate"
+          type="date"
+          value={formData.nextDueDate}
+          onChange={handleInputChange}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Teşhis / Aşı Sebebi"
+          name="diagnosis"
+          multiline
+          rows={2}
+          value={formData.diagnosis}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Notlar"
+          name="notes"
+          multiline
+          rows={3}
+          value={formData.notes}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Maliyet (TL)"
+          name="cost"
+          type="number"
+          value={formData.cost}
+          onChange={handleInputChange}
+        />
+      </Grid>
+    </Grid>
+  );
+
+  const renderSurgeryForm = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom>
+          Ameliyat Bilgileri
+        </Typography>
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Ameliyat Türü"
+          name="surgeryType"
+          value={formData.surgeryType}
+          onChange={handleInputChange}
+          required
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Ameliyat Tarihi"
+          name="surgeryDate"
+          type="datetime-local"
+          value={formData.surgeryDate}
+          onChange={handleInputChange}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>        <TextField
+          fullWidth
+          label="Süre (dakika)"
+          name="surgeryDuration"
+          type="number"
+          value={formData.surgeryDuration}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Anestezi Türü"
+          name="anesthesiaType"
+          select
+          value={formData.anesthesiaType}
+          onChange={handleInputChange}
+        >
+          <MenuItem value="GENERAL">Genel Anestezi</MenuItem>
+          <MenuItem value="LOCAL">Lokal Anestezi</MenuItem>
+          <MenuItem value="SEDATION">Sedasyon</MenuItem>
+          <MenuItem value="NONE">Anestezi Yok</MenuItem>
+        </TextField>
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Ameliyat Notları"
+          name="surgicalNotes"
+          multiline
+          rows={4}
+          value={formData.surgicalNotes}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Komplikasyonlar"
+          name="complications"
+          multiline
+          rows={3}
+          value={formData.complications}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Teşhis"
+          name="diagnosis"
+          multiline
+          rows={2}
+          value={formData.diagnosis}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Notlar"
+          name="notes"
+          multiline
+          rows={3}
+          value={formData.notes}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Maliyet (TL)"
+          name="cost"
+          type="number"
+          value={formData.cost}
+          onChange={handleInputChange}
+        />
+      </Grid>
+    </Grid>
+  );
+
+  const renderPrescriptionForm = () => (
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant="h6" gutterBottom>
+          Reçete Bilgileri
+        </Typography>
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="İlaçlar"
+          name="medications"
+          multiline
+          rows={4}
+          value={formData.medications}
+          onChange={handleInputChange}
+          required
+          helperText="Her ilaç için ayrı satır kullanın"
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={4}>
+        <TextField
+          fullWidth
+          label="Doz"
+          name="dosage"
+          value={formData.dosage}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={4}>
+        <TextField
+          fullWidth
+          label="Kullanım Sıklığı"
+          name="frequency"
+          value={formData.frequency}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={4}>
+        <TextField
+          fullWidth
+          label="Süre"
+          name="duration"
+          value={formData.duration}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Kullanım Talimatları"
+          name="instructions"
+          multiline
+          rows={3}
+          value={formData.instructions}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Teşhis"
+          name="diagnosis"
+          multiline
+          rows={2}
+          value={formData.diagnosis}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Notlar"
+          name="notes"
+          multiline
+          rows={3}
+          value={formData.notes}
+          onChange={handleInputChange}
+        />
+      </Grid>
+      
+      <Grid item xs={12} sm={6}>
+        <TextField
+          fullWidth
+          label="Maliyet (TL)"
+          name="cost"
+          type="number"
+          value={formData.cost}
+          onChange={handleInputChange}
+        />
+      </Grid>
+    </Grid>
+  );
+
+  return (
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <Tooltip title="Geri Dön">
+          <IconButton onClick={() => navigate('/dashboard/appointments')}>
+            <ArrowBack />
+          </IconButton>
+        </Tooltip>
+        <Typography variant="h4" sx={{ ml: 2 }}>
+          Yeni Tıbbi Kayıt Oluştur
+        </Typography>
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+
+      <Card>
+        <CardContent>
+          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          <form onSubmit={handleSubmit}>
+            {renderStepContent()}
+            
+            <Divider sx={{ my: 3 }} />
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button
+                disabled={activeStep === 0}
+                onClick={handleBack}
+              >
+                Geri
+              </Button>
+              
+              <Box>
+                {activeStep < steps.length - 1 ? (
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                  >
+                    İleri
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    startIcon={<Save />}
+                    disabled={loading}
+                  >
+                    {loading ? 'Kaydediliyor...' : 'Kaydet'}
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </form>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
+
+export default CreateMedicalRecord;

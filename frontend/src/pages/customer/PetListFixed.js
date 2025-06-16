@@ -24,13 +24,12 @@ const PetListFixed = () => {
             const response = await petService.getMyPets();
             
             console.log('🐾 Pet API Response:', response);
-            
-            if (response && response.success) {
-                console.log('✅ Pet listesi başarıyla yüklendi:', response.data);
-                setPets(response.data || []);
+              if (response && response.data && response.data.success) {
+                console.log('✅ Pet listesi başarıyla yüklendi:', response.data.data);
+                setPets(response.data.data || []);
             } else {
-                console.log('❌ Pet listesi yüklenemedi:', response?.message);
-                setError(response?.message || 'Pet listesi yüklenirken hata oluştu.');
+                console.log('❌ Pet listesi yüklenemedi:', response?.data?.message);
+                setError(response?.data?.message || 'Pet listesi yüklenirken hata oluştu.');
             }
         } catch (error) {
             console.error('❌ Pet listesi yüklenirken hata:', error);

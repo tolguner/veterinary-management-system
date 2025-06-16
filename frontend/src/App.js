@@ -12,10 +12,20 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminPendingPage from './pages/admin/AdminPendingPage';
 import VeterinaryDashboard from './pages/veterinary/VeterinaryDashboard';
 import VeterinaryCustomers from './pages/veterinary/VeterinaryCustomers';
+import MedicalRecordDashboard from './pages/veterinary/MedicalRecordDashboard';
+import CreateMedicalRecord from './pages/veterinary/CreateMedicalRecord';
+import ViewMedicalRecord from './pages/veterinary/ViewMedicalRecord';
+import EditMedicalRecord from './pages/veterinary/EditMedicalRecord';
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import PetListFixed from './pages/customer/PetListFixed';
 import AddPet from './pages/customer/AddPet';
 import EditPet from './pages/customer/EditPet';
+// Randevu sayfaları
+import CreateAppointment from './pages/customer/CreateAppointment';
+import AppointmentList from './pages/customer/AppointmentList';
+import AppointmentManagement from './pages/veterinary/AppointmentManagement';
+import PetMedicalRecords from './pages/customer/PetMedicalRecords';
+import CustomerViewMedicalRecord from './pages/customer/CustomerViewMedicalRecord';
 import './App.css';
 
 const theme = createTheme({
@@ -136,6 +146,7 @@ const theme = createTheme({
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
   ],
   components: {
     MuiButton: {
@@ -213,8 +224,7 @@ function App() {
                   <AdminPendingPage />
                 </ProtectedRoute>
               } />
-              
-              {/* Veterinary Routes */}
+                {/* Veterinary Routes */}
               <Route path="profile" element={
                 <ProtectedRoute requiredRole="VETERINARY">
                   <VeterinaryDashboard />
@@ -225,7 +235,73 @@ function App() {
                   <VeterinaryCustomers />
                 </ProtectedRoute>
               } />
+              <Route path="appointments" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <AppointmentManagement />
+                </ProtectedRoute>
+              } />
               
+              {/* Medical Records Routes */}
+              <Route path="medical-records" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <MedicalRecordDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="medical-records/create" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <CreateMedicalRecord />
+                </ProtectedRoute>
+              } />
+              <Route path="medical-records/view/:id" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <ViewMedicalRecord />
+                </ProtectedRoute>
+              } />
+              <Route path="medical-records/edit/:id" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <EditMedicalRecord />
+                </ProtectedRoute>
+              } />
+              
+              {/* Analysis Routes */}
+              <Route path="analysis" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <div style={{padding: '20px'}}>
+                    <h1>Tahlil Yönetimi</h1>
+                    <p>Tahlil yönetimi sayfası henüz geliştirilme aşamasındadır.</p>
+                  </div>
+                </ProtectedRoute>
+              } />
+              
+              {/* Vaccine Routes */}
+              <Route path="vaccines" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <div style={{padding: '20px'}}>
+                    <h1>Aşı Yönetimi</h1>
+                    <p>Aşı yönetimi sayfası henüz geliştirilme aşamasındadır.</p>
+                  </div>
+                </ProtectedRoute>
+              } />
+              
+              {/* Surgery Routes */}
+              <Route path="surgeries" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <div style={{padding: '20px'}}>
+                    <h1>Ameliyat Yönetimi</h1>
+                    <p>Ameliyat yönetimi sayfası henüz geliştirilme aşamasındadır.</p>
+                  </div>
+                </ProtectedRoute>
+              } />
+              
+              {/* Prescription Routes */}
+              <Route path="prescriptions" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <div style={{padding: '20px'}}>
+                    <h1>Reçete Yönetimi</h1>
+                    <p>Reçete yönetimi sayfası henüz geliştirilme aşamasındadır.</p>
+                  </div>
+                </ProtectedRoute>
+              } />
               {/* Customer Routes */}
               <Route path="customer" element={
                 <ProtectedRoute requiredRole="CUSTOMER">
@@ -254,13 +330,14 @@ function App() {
                     <p>Pet detay sayfası henüz geliştirilme aşamasındadır.</p>
                   </div>
                 </ProtectedRoute>
-              } />
-              <Route path="customer/appointments" element={
+              } />              <Route path="customer/appointments" element={
                 <ProtectedRoute requiredRole="CUSTOMER">
-                  <div style={{padding: '20px'}}>
-                    <h1>Randevularım</h1>
-                    <p>Bu sayfa henüz geliştirilme aşamasındadır.</p>
-                  </div>
+                  <AppointmentList />
+                </ProtectedRoute>
+              } />
+              <Route path="customer/appointments/create" element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CreateAppointment />
                 </ProtectedRoute>
               } />
               <Route path="customer/profile" element={
@@ -271,6 +348,26 @@ function App() {
                   </div>
                 </ProtectedRoute>
               } />
+              <Route path="customer/pet-medical-records" element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <PetMedicalRecords />
+                </ProtectedRoute>
+              } />
+              <Route path="customer/medical-records/view/:id" element={
+                <ProtectedRoute requiredRole="CUSTOMER">
+                  <CustomerViewMedicalRecord />
+                </ProtectedRoute>
+              } />
+            </Route>
+            
+            {/* Veterinary specific routes */}
+            <Route path="/veterinary" element={
+              <ProtectedRoute requiredRole="VETERINARY">
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="medical-records" element={<MedicalRecordDashboard />} />
+              <Route path="medical-records/create" element={<CreateMedicalRecord />} />
             </Route>
           </Routes>
         </Router>

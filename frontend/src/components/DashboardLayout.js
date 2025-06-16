@@ -20,7 +20,11 @@ import {
   Pets,
   ExitToApp,
   Settings,
-  Person
+  Person,
+  MedicalServices,
+  Vaccines,
+  LocalPharmacy,
+  Science
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -52,13 +56,16 @@ const DashboardLayout = () => {
         { text: 'Kullanıcılar', icon: <People />, path: '/dashboard/users' },
         { text: 'Onay Bekleyenler', icon: <Settings />, path: '/dashboard/pending' }
       ];
-    }
-
-    if (user?.role === 'VETERINARY') {
+    }    if (user?.role === 'VETERINARY') {
       return [
         ...commonItems,
         { text: 'Müşterilerim', icon: <People />, path: '/dashboard/customers' },
         { text: 'Randevular', icon: <Pets />, path: '/dashboard/appointments' },
+        { text: 'Tıbbi Kayıtlar', icon: <MedicalServices />, path: '/dashboard/medical-records' },
+        { text: 'Tahliller', icon: <Science />, path: '/dashboard/analysis' },
+        { text: 'Aşılar', icon: <Vaccines />, path: '/dashboard/vaccines' },
+        { text: 'Ameliyatlar', icon: <MedicalServices />, path: '/dashboard/surgeries' },
+        { text: 'Reçeteler', icon: <LocalPharmacy />, path: '/dashboard/prescriptions' },
         { text: 'Profil', icon: <Person />, path: '/dashboard/profile' }
       ];
     }    if (user?.role === 'CUSTOMER') {
@@ -66,6 +73,7 @@ const DashboardLayout = () => {
         ...commonItems,
         { text: 'Hayvanlarım', icon: <Pets />, path: '/dashboard/customer/pets' },
         { text: 'Randevularım', icon: <Settings />, path: '/dashboard/customer/appointments' },
+        { text: 'Tıbbi Kayıtlar', icon: <MedicalServices />, path: '/dashboard/customer/pet-medical-records' },
         { text: 'Profil', icon: <Person />, path: '/dashboard/customer/profile' }
       ];
     }

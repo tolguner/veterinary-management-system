@@ -2,12 +2,14 @@ package com.example.vms_project.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Data
+@ToString(exclude = {"recordType", "pet", "veterinary"})
 @Entity
 @Table(name = "medical_records")
 public class MedicalRecord {

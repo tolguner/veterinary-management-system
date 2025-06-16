@@ -7,6 +7,7 @@ import com.example.vms_project.repositories.AppointmentRepository;
 import com.example.vms_project.repositories.MedicalRecordRepository;
 import com.example.vms_project.repositories.UserRepository;
 import com.example.vms_project.repositories.RoleRepository;
+import com.example.vms_project.repositories.VeterinaryRepository;
 import com.example.vms_project.dtos.requests.UserRegistrationRequest;
 import com.example.vms_project.dtos.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,14 @@ public class CustomerService {    @Autowired
     
     @Autowired
     private PetRepository petRepository;
-    
-    @Autowired
+      @Autowired
     private AppointmentRepository appointmentRepository;
 
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
+
+    @Autowired
+    private VeterinaryRepository veterinaryRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -363,6 +366,12 @@ public class CustomerService {    @Autowired
         public void setUpcomingAppointments(int upcomingAppointments) { this.upcomingAppointments = upcomingAppointments; }
         
         public int getThisMonthAppointments() { return thisMonthAppointments; }
-        public void setThisMonthAppointments(int thisMonthAppointments) { this.thisMonthAppointments = thisMonthAppointments; }
+        public void setThisMonthAppointments(int thisMonthAppointments) { this.thisMonthAppointments = thisMonthAppointments; }    }    // Veteriner username'ine göre müşterileri getir
+    public List<Customer> getCustomersByVeterinaryUsername(String veterinaryUsername) {
+        // Veterinary entity'sini bul
+        Veterinary veterinary = veterinaryRepository.findByUsername(veterinaryUsername)
+                .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı"));
+        
+        return customerRepository.findByVeterinaryId(veterinary.getId());
     }
 }

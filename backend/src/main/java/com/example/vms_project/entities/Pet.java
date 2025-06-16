@@ -1,8 +1,10 @@
 package com.example.vms_project.entities;
 
 import com.example.vms_project.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@ToString(exclude = {"species", "medicalRecords", "appointments", "owner"})
 @Entity
 @Table(name = "pets")
 public class Pet {
@@ -46,18 +49,18 @@ public class Pet {
     @Column(length = 1000)
     private String allergies;
     
-    private String photoUrl; // Profil fotoğrafı URL'i
-    
-    // Pet'in sahibi (Customer)
+    private String photoUrl;
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer owner;
-    
-    // Pet'in tıbbi kayıtları
+      // Pet'in tıbbi kayıtları
+    @JsonIgnore
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MedicalRecord> medicalRecords = new ArrayList<>();
     
     // Pet'in randevuları
+    @JsonIgnore
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
       // Kayıt tarihi

@@ -61,13 +61,27 @@ public class VeterinaryService {
                 .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı"));
         return VeterinaryResponse.fromEntity(veterinary);
     }
+    
+    // Veterinary entity döndüren metod (internal service use)
+    public Veterinary getVeterinaryEntityByUsername(String username) {
+        return veterinaryRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı: " + username));
+    }
 
     // ID ile veteriner getirme
     public VeterinaryResponse getVeterinaryById(Long id) {
         Veterinary veterinary = veterinaryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı"));
         return VeterinaryResponse.fromEntity(veterinary);
-    }    public Veterinary updateVeterinaryProfile(String username, VeterinaryProfileUpdateRequest request) {
+    }
+    
+    // ID ile veteriner entity getirme (internal service use)
+    public Veterinary getVeterinaryEntityById(Long id) {
+        return veterinaryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı: " + id));
+    }
+
+    public Veterinary updateVeterinaryProfile(String username, VeterinaryProfileUpdateRequest request) {
         Veterinary veterinary = getVeterinaryEntity(username);
 
         veterinary.setClinicName(request.getClinicName());

@@ -24,6 +24,9 @@ import EditPet from './pages/customer/EditPet';
 import CreateAppointment from './pages/customer/CreateAppointment';
 import AppointmentList from './pages/customer/AppointmentList';
 import AppointmentManagement from './pages/veterinary/AppointmentManagement';
+// Takvim ve Çalışma Saatleri sayfaları
+import AppointmentCalendar from './pages/veterinary/AppointmentCalendar';
+import WorkingHoursSetup from './pages/veterinary/WorkingHoursSetup';
 import PetMedicalRecords from './pages/customer/PetMedicalRecords';
 import CustomerViewMedicalRecord from './pages/customer/CustomerViewMedicalRecord';
 import './App.css';
@@ -147,6 +150,12 @@ const theme = createTheme({
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
   ],
   components: {
     MuiButton: {
@@ -234,10 +243,21 @@ function App() {
                 <ProtectedRoute requiredRole="VETERINARY">
                   <VeterinaryCustomers />
                 </ProtectedRoute>
-              } />
-              <Route path="appointments" element={
+              } />              <Route path="appointments" element={
                 <ProtectedRoute requiredRole="VETERINARY">
                   <AppointmentManagement />
+                </ProtectedRoute>
+              } />
+              
+              {/* Calendar and Working Hours Routes */}
+              <Route path="calendar" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <AppointmentCalendar />
+                </ProtectedRoute>
+              } />
+              <Route path="working-hours" element={
+                <ProtectedRoute requiredRole="VETERINARY">
+                  <WorkingHoursSetup />
                 </ProtectedRoute>
               } />
               

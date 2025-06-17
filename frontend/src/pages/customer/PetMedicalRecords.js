@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -42,6 +42,7 @@ import {
   DateRange
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import medicalRecordService from '../../services/medicalRecordService';
 
 const PetMedicalRecords = () => {
   const navigate = useNavigate();
@@ -62,32 +63,18 @@ const PetMedicalRecords = () => {
   useEffect(() => {
     loadMedicalRecords();
   }, []);
-
   const loadMedicalRecords = async () => {
     try {
       setLoading(true);
       console.log('=== LOADING CUSTOMER MEDICAL RECORDS ===');
       
-      const response = await fetch('/api/medical-records/customer/my-pets-records', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Raw response:', data);
-      
-      const recordsData = data.success ? data.data : [];
+      // Servis katmanını kullan - doğru endpoint ve authorization header'ı otomatik ekler
+      const recordsData = await medicalRecordService.getMyPetsRecords();
       console.log('Records data:', recordsData);
-      console.log('Records count:', recordsData.length);
+      console.log('Records count:', recordsData ? recordsData.length : 0);
       
-      setRecords(recordsData);
-      setFilteredRecords(recordsData);
+      setRecords(recordsData || []);
+      setFilteredRecords(recordsData || []);
       
     } catch (err) {
       console.error('Error loading medical records:', err);
@@ -98,9 +85,8 @@ const PetMedicalRecords = () => {
       setLoading(false);
     }
   };
-
   // Filtreleme fonksiyonu
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...records];
 
     // Tarih filtresi
@@ -145,7 +131,7 @@ const PetMedicalRecords = () => {
     }
 
     setFilteredRecords(filtered);
-  };
+  }, [filters, records]);
 
   // Filtreleri temizle
   const clearFilters = () => {
@@ -165,12 +151,10 @@ const PetMedicalRecords = () => {
       ...prev,
       [field]: value
     }));
-  };
-
-  // Filtreler değiştiğinde otomatik uygula
+  };  // Filtreler değiştiğinde otomatik uygula
   useEffect(() => {
     applyFilters();
-  }, [filters, records]);
+  }, [applyFilters]);
 
   // Kayıt türü etiketi
   const getRecordTypeLabel = (type) => {

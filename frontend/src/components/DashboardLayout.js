@@ -22,9 +22,8 @@ import {
   Settings,
   Person,
   MedicalServices,
-  Vaccines,
-  LocalPharmacy,
-  Science
+  CalendarMonth,
+  AccessTime
 } from '@mui/icons-material';
 
 const drawerWidth = 280;
@@ -60,12 +59,10 @@ const DashboardLayout = () => {
       return [
         ...commonItems,
         { text: 'Müşterilerim', icon: <People />, path: '/dashboard/customers' },
-        { text: 'Randevular', icon: <Pets />, path: '/dashboard/appointments' },
+        { text: 'Randevular', icon: <Pets />, path: '/dashboard/appointments' },        
+        { text: 'Takvim', icon: <CalendarMonth />, path: '/dashboard/calendar' },
+        { text: 'Çalışma Saatleri', icon: <AccessTime />, path: '/dashboard/working-hours' },
         { text: 'Tıbbi Kayıtlar', icon: <MedicalServices />, path: '/dashboard/medical-records' },
-        { text: 'Tahliller', icon: <Science />, path: '/dashboard/analysis' },
-        { text: 'Aşılar', icon: <Vaccines />, path: '/dashboard/vaccines' },
-        { text: 'Ameliyatlar', icon: <MedicalServices />, path: '/dashboard/surgeries' },
-        { text: 'Reçeteler', icon: <LocalPharmacy />, path: '/dashboard/prescriptions' },
         { text: 'Profil', icon: <Person />, path: '/dashboard/profile' }
       ];
     }    if (user?.role === 'CUSTOMER') {

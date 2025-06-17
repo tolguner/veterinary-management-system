@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -17,6 +17,7 @@ import {
   Print
 } from '@mui/icons-material';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import medicalRecordService from '../../services/medicalRecordService';
 
 const CustomerViewMedicalRecord = () => {
   const navigate = useNavigate();
@@ -26,8 +27,23 @@ const CustomerViewMedicalRecord = () => {
   
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
+  const [error, setError] = useState('');  const loadRecord = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Servis katmanını kullan
+      const recordData = await medicalRecordService.getCustomerMedicalRecord(id, recordType);
+      
+      // Doğrudan servisten gelen veriyi kullan
+      setRecord(recordData);
+      
+    } catch (err) {
+      setError('Kayıt yüklenirken hata oluştu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, recordType]);
+  
   useEffect(() => {
     if (id && recordType) {
       loadRecord();
@@ -35,32 +51,7 @@ const CustomerViewMedicalRecord = () => {
       setError('Geçersiz kayıt parametreleri');
       setLoading(false);
     }
-  }, [id, recordType]);
-
-  const loadRecord = async () => {
-    try {
-      setLoading(true);
-      
-      const response = await fetch(`/api/medical-records/customer/records/${id}?recordType=${recordType}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      setRecord(data.success ? data.data : null);
-      
-    } catch (err) {
-      setError('Kayıt yüklenirken hata oluştu: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [id, recordType, loadRecord]);
 
   const getRecordTypeLabel = (type) => {
     const labels = {

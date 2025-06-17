@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import veterinaryService from '../../services/veterinaryService';
 import '../../styles/pages/veterinary/VeterinaryDashboard.css';
@@ -9,10 +9,11 @@ import {
   LocalHospital,
   TrendingUp,
   Schedule,
-  Assessment,
   PhotoCamera,
   Close,
-  Save
+  Save,
+  CalendarMonth,
+  AccessTime
 } from '@mui/icons-material';
 
 const VeterinaryDashboard = () => {
@@ -124,17 +125,16 @@ const VeterinaryDashboard = () => {
   const handleNavigateToCustomers = () => {
     navigate('/dashboard/customers');
   };
-
   const handleNavigateToAppointments = () => {
     navigate('/dashboard/appointments');
   };
 
-  const handleNavigateToTreatmentHistory = () => {
-    navigate('/dashboard/treatment-history');
+  const handleNavigateToCalendar = () => {
+    navigate('/dashboard/calendar');
   };
 
-  const handleNavigateToReports = () => {
-    navigate('/dashboard/reports');
+  const handleNavigateToWorkingHours = () => {
+    navigate('/dashboard/working-hours');
   };
 
   if (loading) {
@@ -214,11 +214,9 @@ const VeterinaryDashboard = () => {
             <h3>{profile?.clinicName || 'Belirtilmemiş'}</h3>
             <p>Klinik Adı</p>
           </div>
-        </div>
-
-        <div className="stat-card">
+        </div>        <div className="stat-card">
           <div className="stat-icon">
-            <Assessment />
+            <TrendingUp />
           </div>
           <div className="stat-content">
             <h3>{profile?.experienceYears || 0} Yıl</h3>
@@ -334,11 +332,11 @@ const VeterinaryDashboard = () => {
             <span className="day">Pazar:</span>
             <span className="hours">{profile?.sundayHours || 'Kapalı'}</span>
           </div>
-        </div>
-      </div>      {/* Quick Actions */}
+        </div>      </div>
+        {/* Quick Actions */}
       <div className="quick-actions">
         <h2>Hızlı Erişim</h2>
-        <div className="actions-grid">
+        <p>Sol menüden müşteri ve randevu işlemlerini yönetebilirsiniz.</p>        <div className="actions-grid">
           <button className="action-btn" onClick={handleNavigateToCustomers}>
             <Person />
             <span>Müşterilerim</span>
@@ -347,13 +345,17 @@ const VeterinaryDashboard = () => {
             <Schedule />
             <span>Randevular</span>
           </button>
-          <button className="action-btn" onClick={handleNavigateToTreatmentHistory}>
-            <LocalHospital />
-            <span>Tedavi Geçmişi</span>
+          <button className="action-btn" onClick={handleNavigateToCalendar}>
+            <CalendarMonth />
+            <span>Takvim</span>
           </button>
-          <button className="action-btn" onClick={handleNavigateToReports}>
-            <Assessment />
-            <span>Raporlar</span>
+          <button className="action-btn" onClick={handleNavigateToWorkingHours}>
+            <AccessTime />
+            <span>Çalışma Saatleri</span>
+          </button>
+          <button className="action-btn" onClick={() => navigate('/dashboard/medical-records')}>
+            <LocalHospital />
+            <span>Tıbbi Kayıtlar</span>
           </button>
         </div>
       </div>

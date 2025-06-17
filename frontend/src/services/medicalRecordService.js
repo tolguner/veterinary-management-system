@@ -196,7 +196,61 @@ const medicalRecordService = {  // Veterinerin müşterilerini getir
       console.error('Test API Error:', error.response || error);
       throw error;
     }
-  }
+  },
+
+  // Müşterinin kendi hayvanlarının tüm tıbbi kayıtlarını getir
+  getMyPetsRecords: async () => {
+    try {
+      console.log('=== GETTING CUSTOMER\'S OWN PETS MEDICAL RECORDS ===');
+      
+      const response = await apiClient.get('/medical-records/customer/my-pets-records');
+      
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error('Error getting customer pets records:', error);
+      throw error;
+    }
+  },
+  
+  // Müşterinin belirli bir hayvanının tüm tıbbi kayıtlarını getir
+  getMyPetRecords: async (petId) => {
+    try {
+      console.log('=== GETTING CUSTOMER\'S PET MEDICAL RECORDS ===');
+      console.log('Pet ID:', petId);
+      
+      const response = await apiClient.get(`/medical-records/customer/pets/${petId}/records`);
+      
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error(`Error getting medical records for pet ${petId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Müşterinin belirli bir tıbbi kaydı görüntülemesi
+  getCustomerMedicalRecord: async (recordId, recordType) => {
+    try {
+      console.log('=== GETTING CUSTOMER MEDICAL RECORD ===');
+      console.log('Record ID:', recordId);
+      console.log('Record Type:', recordType);
+      
+      const response = await apiClient.get(`/medical-records/customer/records/${recordId}?recordType=${recordType}`);
+      
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
+      
+      return response.data.data;
+    } catch (error) {
+      console.error(`Error getting medical record ${recordId}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default medicalRecordService;

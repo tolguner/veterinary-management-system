@@ -87,6 +87,24 @@ class VeterinaryService {
       throw this.handleError(error);
     }
   }
+  // Belirli bir tarih aralığı için randevuları getir (takvim için)
+  async getCalendarAppointments(startDate, endDate) {
+    try {
+      const response = await apiClient.get(`/appointments/veterinary/calendar?startDate=${startDate}&endDate=${endDate}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+  // Belirli bir gün için müsait randevu saatlerini getir
+  async getAvailableTimeSlots(date) {
+    try {
+      const response = await apiClient.get(`/appointments/veterinary/available-slots?date=${date}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   // Hata yönetimi
   handleError(error) {

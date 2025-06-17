@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -282,6 +283,58 @@ public class AppointmentController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
                 new ApiResponse<>(false, "Randevu detayları alınamadı: " + e.getMessage(), null)
+            );
+        }
+    }
+    
+    // Veterinerin belirli tarih aralığındaki randevularını getir (takvim için)
+    @GetMapping("/veterinary/calendar")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getCalendarAppointments(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(userDetails.getUsername());
+            List<AppointmentResponse> appointments = appointmentService.getCalendarAppointments(
+                veterinary.getId(), startDate, endDate);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Takvim randevuları listelendi", appointments));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                new ApiResponse<>(false, "Takvim randevuları alınamadı: " + e.getMessage(), null)
+            );
+        }
+    }
+
+    // Veterinerin müsait saatlerini kontrol et
+    @GetMapping("/veterinary/available-slots")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<ApiResponse<List<String>>> getAvailableTimeSlots(
+            @RequestParam String date,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(userDetails.getUsername());
+            List<String> availableSlots = appointmentService.getAvailableTimeSlots(veterinary.getId(), date);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Müsait saatler listelendi", availableSlots));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                new ApiResponse<>(false, "Müsait saatler alınamadı: " + e.getMessage(), null)
+            );
+        }
+    }
+
+    // Veterinerin çalışma saatlerini güncelle
+    @PutMapping("/veterinary/working-hours")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<ApiResponse<String>> updateWorkingHours(
+            @RequestBody Map<String, Object> workingHours,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            appointmentService.updateVeterinaryWorkingHours(userDetails.getUsername(), workingHours);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Çalışma saatleri güncellendi", "Başarılı"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                new ApiResponse<>(false, "Çalışma saatleri güncellenemedi: " + e.getMessage(), null)
             );
         }
     }

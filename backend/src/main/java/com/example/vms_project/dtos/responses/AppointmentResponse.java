@@ -38,6 +38,48 @@ public class AppointmentResponse {
     private String petSpecies;
     private String petBreed;
     
+    // Static method to convert entity to response
+    public static AppointmentResponse fromEntity(Appointment appointment) {
+        AppointmentResponse response = new AppointmentResponse();
+        response.setId(appointment.getId());
+        response.setAppointmentDate(appointment.getAppointmentDate());
+        response.setReason(appointment.getReason());
+        response.setStatus(appointment.getStatus());
+        response.setCustomerNotes(appointment.getCustomerNotes());
+        response.setVeterinaryNotes(appointment.getVeterinaryNotes());
+        response.setDiagnosis(appointment.getDiagnosis());
+        response.setTreatment(appointment.getTreatment());
+        response.setMedications(appointment.getMedications());
+        response.setCreatedAt(appointment.getCreatedAt());
+        response.setUpdatedAt(appointment.getUpdatedAt());
+        response.setCompletedAt(appointment.getCompletedAt());
+        response.setCancelledAt(appointment.getCancelledAt());
+        response.setCancellationReason(appointment.getCancellationReason());
+          // Customer bilgileri
+        response.setCustomerId(appointment.getCustomer().getId());
+        response.setCustomerName(appointment.getCustomer().getDisplayName());
+        if (appointment.getCustomer().getPhoneNumber() != null) {
+            response.setCustomerPhone(appointment.getCustomer().getPhoneNumber());
+        }
+        
+        // Veterinary bilgileri
+        response.setVeterinaryId(appointment.getVeterinary().getId());
+        response.setVeterinaryName(appointment.getVeterinary().getClinicName());
+        if (appointment.getVeterinary().getPhoneNumber() != null) {
+            response.setVeterinaryPhone(appointment.getVeterinary().getPhoneNumber());
+        }
+        
+        // Pet bilgileri
+        response.setPetId(appointment.getPet().getId());
+        response.setPetName(appointment.getPet().getName());
+        response.setPetSpecies(appointment.getPet().getSpecies().getName());
+        if (appointment.getPet().getBreed() != null) {
+            response.setPetBreed(appointment.getPet().getBreed());
+        }
+        
+        return response;
+    }
+    
     // Status için yardımcı metodlar
     public String getStatusDisplayName() {
         return status != null ? status.getDisplayName() : "";

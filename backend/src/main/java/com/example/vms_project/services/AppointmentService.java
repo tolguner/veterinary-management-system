@@ -12,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -207,6 +210,33 @@ public class AppointmentService {
         }
         
         return convertToAppointmentResponse(appointment);
+    }
+    
+    // Belirli bir tarih aralığında randevuları getir (takvim için)
+    public List<AppointmentResponse> getCalendarAppointments(Long veterinaryId, String startDate, String endDate) {
+        LocalDateTime start = LocalDate.parse(startDate).atStartOfDay();
+        LocalDateTime end = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
+        
+        return appointmentRepository.findByVeterinaryIdAndAppointmentDateBetween(veterinaryId, start, end)
+                .stream()
+                .map(AppointmentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+      // Belirli bir gün için müsait randevu saatlerini getir
+    public List<String> getAvailableTimeSlots(Long veterinaryId, String dateStr) {
+        // LocalDate date = LocalDate.parse(dateStr); - Unused variable
+        // LocalDate parsed but not yet used - will be needed when implementing with ScheduleService
+        
+        // Çalışma saatleri servisinden müsait saatleri al
+        // Bu metod ScheduleService'den çağrılmalı
+        return Collections.emptyList(); // Geçici olarak boş liste döndür
+    }
+    
+    // Veterinerin çalışma saatlerini güncelle
+    @Transactional
+    public void updateVeterinaryWorkingHours(String username, Map<String, Object> workingHours) {
+        // Bu metod ScheduleService üzerinden çalışma saatlerini güncellemeli
+        // Şu an için boş bırakıldı
     }
     
     // Private helper methods

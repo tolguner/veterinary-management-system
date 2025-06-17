@@ -91,4 +91,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     
     // Veteriner ve tarih aralığı bazında randevular (çakışma kontrolü için)
     List<Appointment> findByVeterinaryAndAppointmentDateBetween(Veterinary veterinary, LocalDateTime start, LocalDateTime end);
+    
+    // Veteriner ID ve tarih aralığına göre randevular
+    List<Appointment> findByVeterinaryIdAndAppointmentDateBetween(Long veterinaryId, LocalDateTime start, LocalDateTime end);
 }

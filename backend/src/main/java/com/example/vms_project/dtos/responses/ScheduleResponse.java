@@ -14,10 +14,14 @@ public class ScheduleResponse {
     private DayOfWeek dayOfWeek;
     private String dayName;
     private String startTime;
-    private String endTime;
-    private Integer appointmentDuration;
+    private String endTime;    private Integer appointmentDuration;
     private Integer breakDuration;
-    private boolean isAvailable;
+    private boolean available;
+
+    // isAvailable için getter metodu ekle (JSON serialize ederken hem available hem isAvailable olarak erişilebilir olacak)
+    public boolean isAvailable() {
+        return available;
+    }
 
     public static ScheduleResponse fromEntity(VeterinarySchedule schedule) {
         ScheduleResponse response = new ScheduleResponse();
@@ -32,6 +36,8 @@ public class ScheduleResponse {
         
         response.setAppointmentDuration(schedule.getAppointmentDuration());
         response.setBreakDuration(schedule.getBreakDuration());
+        
+        // Müsaitlik bilgisini ayarla
         response.setAvailable(schedule.isAvailable());
         
         return response;

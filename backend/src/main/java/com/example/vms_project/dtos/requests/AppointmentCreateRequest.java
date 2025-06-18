@@ -10,4 +10,5 @@ public class AppointmentCreateRequest {
     private LocalDateTime appointmentDate;
     private String reason;
     private String customerNotes;
+    private Long veterinaryId; // İsteğe bağlı veteriner ID
 }

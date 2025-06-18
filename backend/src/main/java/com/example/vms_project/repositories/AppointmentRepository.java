@@ -89,6 +89,15 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
            "ORDER BY YEAR(a.appointmentDate) DESC, MONTH(a.appointmentDate) DESC")
     List<Object[]> getMonthlyAppointmentStats(@Param("veterinaryId") Long veterinaryId);
     
+    // Günlük randevu istatistikleri (son 30 gün)
+    @Query("SELECT CONCAT(DAY(a.appointmentDate), '/', MONTH(a.appointmentDate)) as day, COUNT(a.id) " +
+           "FROM Appointment a " +
+           "WHERE a.veterinary.id = :veterinaryId " +
+           "AND a.appointmentDate BETWEEN DATEADD(DAY, -29, CURRENT_DATE) AND CURRENT_DATE " +
+           "GROUP BY DAY(a.appointmentDate), MONTH(a.appointmentDate), DATE(a.appointmentDate) " +
+           "ORDER BY DATE(a.appointmentDate) ASC")
+    List<Object[]> getDailyAppointmentStats(@Param("veterinaryId") Long veterinaryId);
+    
     // Veteriner ve tarih aralığı bazında randevular (çakışma kontrolü için)
     List<Appointment> findByVeterinaryAndAppointmentDateBetween(Veterinary veterinary, LocalDateTime start, LocalDateTime end);
     

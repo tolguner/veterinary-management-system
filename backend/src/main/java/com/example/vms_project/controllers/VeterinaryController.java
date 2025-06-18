@@ -7,6 +7,9 @@ import com.example.vms_project.services.CustomerService;
 import com.example.vms_project.services.VeterinaryService;
 import com.example.vms_project.dtos.responses.ApiResponse;
 import com.example.vms_project.dtos.responses.VeterinaryResponse;
+import com.example.vms_project.dtos.responses.MedicalTypeStatsResponse;
+import com.example.vms_project.dtos.responses.AppointmentDateStatsResponse;
+import com.example.vms_project.dtos.responses.PetTypeStatsResponse;
 import com.example.vms_project.dtos.requests.UserRegistrationRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -144,5 +147,63 @@ public class VeterinaryController {
     public ResponseEntity<VeterinaryResponse> getVeterinaryById(@PathVariable Long id) {
         VeterinaryResponse veterinary = veterinaryService.getVeterinaryById(id);
         return ResponseEntity.ok(veterinary);
+    }
+
+    // Bugünkü çalışma saati bilgisini getir
+    @GetMapping("/today-schedule")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<Map<String, Object>> getTodayScheduleInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(userDetails.getUsername());
+            Map<String, Object> scheduleInfo = veterinaryService.getTodaysScheduleInfo(veterinary.getId());
+            return ResponseEntity.ok(scheduleInfo);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Çalışma saati bilgisi alınamadı: " + e.getMessage());
+            errorResponse.put("isAvailable", false);
+            return ResponseEntity.ok(errorResponse);
+        }
+    }
+
+    // Tıbbi kayıt türlerine göre maliyet ve işlem sayısı istatistikleri
+    @GetMapping("/stats/medical-types")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<MedicalTypeStatsResponse> getMedicalTypeStats(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntity(userDetails.getUsername());
+            MedicalTypeStatsResponse stats = veterinaryService.getMedicalTypeStats(veterinary.getId());
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Belirli bir döneme göre randevu istatistikleri (günlük veya aylık)
+    @GetMapping("/stats/appointments")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<AppointmentDateStatsResponse> getAppointmentDateStats(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false, defaultValue = "month") String period) {
+        
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntity(userDetails.getUsername());
+            AppointmentDateStatsResponse stats = veterinaryService.getAppointmentDateStats(veterinary.getId(), period);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Hayvan türlerine göre istatistikler
+    @GetMapping("/stats/pet-types")
+    @PreAuthorize("hasRole('VETERINARY')")
+    public ResponseEntity<PetTypeStatsResponse> getPetTypeStats(@AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            Veterinary veterinary = veterinaryService.getVeterinaryEntity(userDetails.getUsername());
+            PetTypeStatsResponse stats = veterinaryService.getPetTypeStats(veterinary.getId());
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

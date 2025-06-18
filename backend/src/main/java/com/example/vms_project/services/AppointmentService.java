@@ -7,14 +7,16 @@ import com.example.vms_project.entities.Veterinary;
 import com.example.vms_project.repositories.AppointmentRepository;
 import com.example.vms_project.dtos.requests.AppointmentCreateRequest;
 import com.example.vms_project.dtos.requests.AppointmentUpdateRequest;
+import com.example.vms_project.dtos.requests.ScheduleRequest;
 import com.example.vms_project.dtos.responses.AppointmentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ public class AppointmentService {
     private final CustomerService customerService;
     private final VeterinaryService veterinaryService;
     private final PetService petService;
+    private final ScheduleService scheduleService;
     
     // Müşteri randevu oluşturma
     public AppointmentResponse createAppointment(AppointmentCreateRequest request, Long customerId) {
@@ -53,6 +56,20 @@ public class AppointmentService {
         // Aynı zamanda başka randevu var mı kontrol et
         if (hasConflictingAppointment(veterinary, request.getAppointmentDate())) {
             throw new RuntimeException("Bu saatte zaten bir randevu var. Lütfen başka bir saat seçin.");
+        }
+        
+        // Veterinerin çalışma saatleri içinde mi kontrol et
+        LocalDate appointmentDay = request.getAppointmentDate().toLocalDate();
+        List<String> availableSlots = scheduleService.getAvailableTimeSlots(veterinary.getId(), appointmentDay);
+        
+        // Saat formatını ayarla
+        String requestedTime = String.format("%02d:%02d", 
+            request.getAppointmentDate().getHour(), 
+            request.getAppointmentDate().getMinute());
+        
+        // Müsait bir saat mi kontrol et
+        if (!availableSlots.contains(requestedTime)) {
+            throw new RuntimeException("Seçtiğiniz saat veterinerinizin çalışma saatleri içinde değil veya dolu.");
         }
         
         Appointment appointment = new Appointment();
@@ -224,19 +241,45 @@ public class AppointmentService {
     }
       // Belirli bir gün için müsait randevu saatlerini getir
     public List<String> getAvailableTimeSlots(Long veterinaryId, String dateStr) {
-        // LocalDate date = LocalDate.parse(dateStr); - Unused variable
-        // LocalDate parsed but not yet used - will be needed when implementing with ScheduleService
-        
-        // Çalışma saatleri servisinden müsait saatleri al
-        // Bu metod ScheduleService'den çağrılmalı
-        return Collections.emptyList(); // Geçici olarak boş liste döndür
+        LocalDate date = LocalDate.parse(dateStr);
+        // ScheduleService'deki metodu çağır
+        return scheduleService.getAvailableTimeSlots(veterinaryId, date);
     }
     
     // Veterinerin çalışma saatlerini güncelle
     @Transactional
     public void updateVeterinaryWorkingHours(String username, Map<String, Object> workingHours) {
-        // Bu metod ScheduleService üzerinden çalışma saatlerini güncellemeli
-        // Şu an için boş bırakıldı
+        // Veteriner bilgisini al
+        Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(username);
+        List<ScheduleRequest> scheduleRequests = new ArrayList<>();
+        
+        // Map'ten gelen çalışma saatlerini dönüştür
+        for (Map.Entry<String, Object> entry : workingHours.entrySet()) {
+            try {
+                // Gün adını al (MONDAY, TUESDAY, ...)
+                DayOfWeek dayOfWeek = DayOfWeek.valueOf(entry.getKey());
+                
+                // Gün bilgilerini al
+                @SuppressWarnings("unchecked")
+                Map<String, Object> dayDetails = (Map<String, Object>) entry.getValue();
+                
+                // ScheduleRequest oluştur
+                ScheduleRequest request = new ScheduleRequest();
+                request.setDayOfWeek(dayOfWeek);
+                request.setStartTime((String) dayDetails.get("startTime"));
+                request.setEndTime((String) dayDetails.get("endTime"));
+                request.setAppointmentDuration(Integer.valueOf(dayDetails.get("appointmentDuration").toString()));
+                request.setBreakDuration(Integer.valueOf(dayDetails.get("breakDuration").toString()));
+                request.setAvailable(Boolean.valueOf(dayDetails.get("isAvailable").toString()));
+                
+                scheduleRequests.add(request);
+            } catch (Exception e) {
+                throw new RuntimeException("Çalışma saatleri formatı hatalı: " + e.getMessage());
+            }
+        }
+        
+        // Tüm çalışma saatlerini güncelle
+        scheduleService.updateFullSchedule(veterinary.getId(), scheduleRequests);
     }
     
     // Private helper methods

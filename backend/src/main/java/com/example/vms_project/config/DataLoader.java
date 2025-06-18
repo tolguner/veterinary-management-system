@@ -32,9 +32,6 @@ public class DataLoader implements CommandLineRunner {
     private void createDefaultUsers() {
         try {
             log.info("Test kullanıcıları kontrol ediliyor...");
-            // Test kullanıcıları manuel olarak oluşturmak yerine,
-            // AuthController üzerinden register işlemleri yapılabilir
-            // veya doğrudan User repository kullanılabilir
             log.info("Test kullanıcıları için AdminPanel'dan manuel oluşturma gerekebilir");
             
         } catch (Exception e) {

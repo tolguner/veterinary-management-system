@@ -61,4 +61,12 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Lo
     // Belirli bir tarihten sonraki kayıtları say
     @Query("SELECT COUNT(mr) FROM MedicalRecord mr WHERE mr.pet = :pet AND mr.visitDate >= :dateThreshold")
     long countRecentRecordsByPet(@Param("pet") Pet pet, @Param("dateThreshold") LocalDateTime dateThreshold);
+    
+    // Veteriner tarafından yapılan tıbbi kayıt türlerine göre maliyet ve sayı istatistikleri
+    @Query("SELECT m.recordType.name, SUM(m.cost), COUNT(m.id) " +
+           "FROM MedicalRecord m " +
+           "WHERE m.veterinary.id = :veterinaryId " +
+           "GROUP BY m.recordType.name " +
+           "ORDER BY COUNT(m.id) DESC")
+    List<Object[]> getMedicalTypeStats(@Param("veterinaryId") Long veterinaryId);
 }

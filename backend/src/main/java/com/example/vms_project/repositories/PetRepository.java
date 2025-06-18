@@ -56,4 +56,12 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
     
     // Customer username ve pet ID ile spesifik pet bul
     Optional<Pet> findByIdAndOwnerUsername(Long petId, String username);
+    
+    // Veterinerin müşterilerinin sahip olduğu hayvan türlerine göre istatistikler
+    @Query("SELECT p.species.name, COUNT(p) FROM Pet p " +
+           "WHERE p.owner.veterinary.id = :veterinaryId " +
+           "AND p.isActive = true " +
+           "GROUP BY p.species.name " +
+           "ORDER BY COUNT(p) DESC")
+    List<Object[]> getPetTypeStats(@Param("veterinaryId") Long veterinaryId);
 }

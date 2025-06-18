@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,10 +36,11 @@ public class CustomerService {    @Autowired
     private AppointmentRepository appointmentRepository;
 
     @Autowired
-    private MedicalRecordRepository medicalRecordRepository;
-
-    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;    @Autowired
     private VeterinaryRepository veterinaryRepository;
+    
+    @Autowired
+    private ScheduleService scheduleService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -373,5 +375,15 @@ public class CustomerService {    @Autowired
                 .orElseThrow(() -> new RuntimeException("Veteriner bulunamadı"));
         
         return customerRepository.findByVeterinaryId(veterinary.getId());
+    }    // Veterinerin müsait saatlerini getir
+    public List<String> getVeterinaryAvailableSlots(Long veterinaryId, String date) {
+        // ScheduleService'e yönlendir
+        return scheduleService.getAvailableTimeSlots(veterinaryId, LocalDate.parse(date));
+    }
+    
+    // Müşterinin veterinerinin müsait saatlerini getir
+    public List<String> getMyVeterinaryAvailableSlots(Long veterinaryId, String date) {
+        // Doğrudan ScheduleService üzerinden müsait saatleri al
+        return scheduleService.getAvailableTimeSlots(veterinaryId, LocalDate.parse(date));
     }
 }

@@ -304,17 +304,38 @@ public class AppointmentController {
                 new ApiResponse<>(false, "Takvim randevuları alınamadı: " + e.getMessage(), null)
             );
         }
-    }
-
-    // Veterinerin müsait saatlerini kontrol et
+    }    // Veterinerin müsait saatlerini kontrol et
     @GetMapping("/veterinary/available-slots")
-    @PreAuthorize("hasRole('VETERINARY')")
+    @PreAuthorize("hasAnyRole('VETERINARY', 'CUSTOMER')")
     public ResponseEntity<ApiResponse<List<String>>> getAvailableTimeSlots(
             @RequestParam String date,
+            @RequestParam(required = false) Long veterinaryId,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(userDetails.getUsername());
-            List<String> availableSlots = appointmentService.getAvailableTimeSlots(veterinary.getId(), date);
+            // Veterinary ID belirleme
+            Long vetId;
+            if (veterinaryId != null) {
+                // Eğer bir veterinaryId parametresi verilmişse, onu kullan
+                vetId = veterinaryId;
+            } else {
+                // Eğer kullanıcı veteriner ise kendi ID'sini, müşteri ise kendi veterinerinin ID'sini kullan
+                try {
+                    // Önce veteriner olarak deneyin
+                    Veterinary veterinary = veterinaryService.getVeterinaryEntityByUsername(userDetails.getUsername());
+                    vetId = veterinary.getId();
+                } catch (Exception e) {
+                    // Veteriner değilse müşteri olmalı
+                    Customer customer = customerService.getCustomerByUsername(userDetails.getUsername());
+                    if (customer.getVeterinary() == null) {
+                        return ResponseEntity.badRequest().body(
+                            new ApiResponse<>(false, "Kayıtlı veterineriniz bulunmamaktadır", null)
+                        );
+                    }
+                    vetId = customer.getVeterinary().getId();
+                }
+            }
+            
+            List<String> availableSlots = appointmentService.getAvailableTimeSlots(vetId, date);
             return ResponseEntity.ok(new ApiResponse<>(true, "Müsait saatler listelendi", availableSlots));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(

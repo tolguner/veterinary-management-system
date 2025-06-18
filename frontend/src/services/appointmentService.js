@@ -20,6 +20,11 @@ const appointmentService = {
     });
   },
 
+    // Veterinerin müsait saatlerini getir
+  getVeterinaryAvailableSlots: (date) => {
+    return apiClient.get(`/customer/veterinary-slots?date=${date}`);
+  },
+
   // Veteriner randevu işlemleri
   getVeterinaryAppointments: () => {
     return apiClient.get('/appointments/veterinary');
@@ -50,7 +55,11 @@ const appointmentService = {
   // Genel
   getAppointmentDetails: (appointmentId) => {
     return apiClient.get(`/appointments/${appointmentId}`);
-  }
+  },
+
+  getAppointmentById: (appointmentId) => {
+    return apiClient.get(`/appointments/${appointmentId}`);
+  },
 };
 
 export default appointmentService;

@@ -49,6 +49,16 @@ class ScheduleService {  // Veterinerin çalışma takvimini getir
       throw this.handleError(error);
     }
   }
+  
+  // Müşterinin veterinerinin müsait saatlerini getir
+  async getMyVeterinaryAvailableSlots(date) {
+    try {
+      const response = await apiClient.get(`/customer/veterinary-slots?date=${date}`);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
 
   // Hata yönetimi
   handleError(error) {

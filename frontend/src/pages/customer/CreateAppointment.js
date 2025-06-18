@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import petService from '../../services/petService';
 import appointmentService from '../../services/appointmentService';
+import scheduleService from '../../services/scheduleService';
 import '../../styles/pages/customer/CreateAppointment.css';
 
 const CreateAppointment = () => {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState([]);
   const [formData, setFormData] = useState({
     petId: '',
     appointmentDate: '',
@@ -16,9 +19,40 @@ const CreateAppointment = () => {
     customerNotes: ''
   });
 
+  // fetchAvailableSlots fonksiyonunu useCallback ile optimize edelim
+  const fetchAvailableSlots = useCallback(async (date) => {
+    try {
+      setLoadingSlots(true);
+      const response = await scheduleService.getMyVeterinaryAvailableSlots(date);
+      if (response.success) {
+        setAvailableSlots(response.data || []);
+        // Eğer mevcut seçili saat artık müsait değilse, seçimi temizle
+        if (formData.appointmentTime && !response.data.includes(formData.appointmentTime)) {
+          setFormData(prev => ({ ...prev, appointmentTime: '' }));
+        }
+      } else {
+        setAvailableSlots([]);
+      }
+    } catch (error) {
+      console.error('Müsait saatler alınırken hata:', error);
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, [formData.appointmentTime]);
+
   useEffect(() => {
     fetchPets();
   }, []);
+
+  // Tarih değiştiğinde müsait saatleri getir
+  useEffect(() => {
+    if (formData.appointmentDate) {
+      fetchAvailableSlots(formData.appointmentDate);
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [formData.appointmentDate, fetchAvailableSlots]);
 
   const fetchPets = async () => {
     try {
@@ -146,22 +180,22 @@ const CreateAppointment = () => {
               value={formData.appointmentTime}
               onChange={handleInputChange}
               required
+              disabled={loadingSlots || availableSlots.length === 0}
             >
-              <option value="">Saat seçin...</option>
-              <option value="09:00">09:00</option>
-              <option value="09:30">09:30</option>
-              <option value="10:00">10:00</option>
-              <option value="10:30">10:30</option>
-              <option value="11:00">11:00</option>
-              <option value="11:30">11:30</option>
-              <option value="14:00">14:00</option>
-              <option value="14:30">14:30</option>
-              <option value="15:00">15:00</option>
-              <option value="15:30">15:30</option>
-              <option value="16:00">16:00</option>
-              <option value="16:30">16:30</option>
-              <option value="17:00">17:00</option>
+              <option value="">
+                {loadingSlots 
+                  ? "Müsait saatler yükleniyor..." 
+                  : availableSlots.length === 0 && formData.appointmentDate 
+                    ? "Seçilen tarihte müsait saat yok" 
+                    : "Saat seçin..."}
+              </option>
+              {availableSlots.map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
             </select>
+            {formData.appointmentDate && availableSlots.length === 0 && !loadingSlots && (
+              <p className="form-error">Seçilen tarihte veterinerinizin müsait saati bulunmuyor. Lütfen başka bir tarih seçin.</p>
+            )}
           </div>
 
           {/* Randevu Sebebi */}
@@ -209,7 +243,7 @@ const CreateAppointment = () => {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || loadingSlots}
               className="btn-primary"
             >
               {loading ? '⏳ Oluşturuluyor...' : '✅ Randevu Oluştur'}
@@ -225,6 +259,7 @@ const CreateAppointment = () => {
             <li>• Onay durumunu randevularım sayfasından takip edebilirsiniz</li>
             <li>• Acil durumlar için direkt kliniği arayın</li>
             <li>• Randevu saatinden 30 dk önce hazır olun</li>
+            <li>• Sadece veterinerinizin müsait olduğu saatlerde randevu alabilirsiniz</li>
           </ul>
         </div>
       </div>

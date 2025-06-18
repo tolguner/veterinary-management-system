@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import appointmentService from '../../services/appointmentService';
 import '../../styles/pages/veterinary/AppointmentManagement.css';
 
 const AppointmentManagement = () => {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [pendingAppointments, setPendingAppointments] = useState([]);
   const [todaysAppointments, setTodaysAppointments] = useState([]);
@@ -83,7 +85,7 @@ const AppointmentManagement = () => {
       treatment: formData.get('treatment'),
       medications: formData.get('medications'),
       
-      // Medical Record alanları
+      // Medical Record entegrasyonu - seçime bağlı
       createMedicalRecord: formData.get('createMedicalRecord') === 'on',
       medicalRecordType: formData.get('medicalRecordType'),
       
@@ -131,8 +133,27 @@ const AppointmentManagement = () => {
         let successMessage = response.data.message || 'Randevu başarıyla tamamlandı';
         
         console.log('Success Message:', successMessage);
-        alert(successMessage);
         
+        // Tıbbi kayıt otomatik oluşturuldu mu bilgisini kontrol et
+        if (response.data.data && response.data.data.medicalRecordId) {
+          successMessage += `. Tıbbi kayıt #${response.data.data.medicalRecordId} oluşturuldu.`;
+        } 
+        // Eğer "createMedicalRecord" seçili ama backend'de oluşturulmadıysa, manuel tıbbi kayıt oluşturma sayfasına yönlendir
+        else if (appointmentData.createMedicalRecord) {
+          const redirectToCreate = window.confirm(
+            'Randevu tamamlandı. Tıbbi kayıt oluşturma sayfasına yönlendirilmek ister misiniz?'
+          );
+          
+          if (redirectToCreate) {
+            setShowCompleteModal(false);
+            setSelectedAppointment(null);
+            // Tıbbi kayıt oluşturma sayfasına yönlendir ve randevu bilgilerini taşı
+            navigate(`/veterinary/create-medical-record?appointmentId=${selectedAppointment.id}`);
+            return;
+          }
+        }
+        
+        alert(successMessage);
         setShowCompleteModal(false);
         setSelectedAppointment(null);
         fetchAllAppointments();

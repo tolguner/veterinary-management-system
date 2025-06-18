@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import veterinaryService from '../../services/veterinaryService';
 import '../../styles/pages/veterinary/VeterinaryDashboard.css';
@@ -8,17 +7,14 @@ import {
   Person,
   LocalHospital,
   TrendingUp,
-  Schedule,
   PhotoCamera,
   Close,
   Save,
-  CalendarMonth,
-  AccessTime
+  CalendarMonth
 } from '@mui/icons-material';
 
 const VeterinaryDashboard = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,20 +25,67 @@ const VeterinaryDashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  }, []);  const loadDashboardData = async () => {
     try {
       setLoading(true);
+      
+      console.log('Dashboard verileri yükleniyor...');
+      
+      // Önce bugünkü çalışma saati bilgisini al
+      const todayScheduleResponse = await veterinaryService.getTodaySchedule();
+      console.log('VeterinaryDashboard - Bugünkü çalışma saati (ham veri):', todayScheduleResponse);
+      
+      // Sonra diğer verileri al
       const [profileData, statsData] = await Promise.all([
         veterinaryService.getProfile(),
         veterinaryService.getDashboardStats()
       ]);
       
+      console.log('VeterinaryDashboard - Profil:', profileData);
+      console.log('VeterinaryDashboard - İstatistikler:', statsData);
+      console.log('Bugün:', new Date().toLocaleDateString('tr-TR', { weekday: 'long' }));
+      
+      // Kendi istatistik nesnemizi oluşturalım
+      const updatedStats = {
+        ...statsData,
+        // Diğer değerleri statsData'dan kopyala
+        totalCustomers: statsData.totalCustomers || 0,
+        todaysAppointments: statsData.todaysAppointments || 0,
+        profileCompleteness: statsData.profileCompleteness || 0,
+        veterinaryStatus: statsData.veterinaryStatus || 'PENDING',
+      };
+      
+      // Bugünün çalışma saati bilgisini kullanarak istatistikleri değiştir
+      if (todayScheduleResponse && todayScheduleResponse.found === true) {
+        // Backend'den gelen isAvailable veya available değerlerini kontrol et
+        let isClinicOpen = false;
+        
+        if (todayScheduleResponse.isAvailable !== undefined) {
+          isClinicOpen = !!todayScheduleResponse.isAvailable; // Boolean'a dönüştür
+          console.log('todayScheduleResponse.isAvailable değeri bulundu:', isClinicOpen);
+        } 
+        else if (todayScheduleResponse.available !== undefined) {
+          isClinicOpen = !!todayScheduleResponse.available; // Boolean'a dönüştür
+          console.log('todayScheduleResponse.available değeri bulundu:', isClinicOpen);
+        }
+        
+        // Durumu güncelle
+        updatedStats.isOpen = isClinicOpen;
+        updatedStats.clinicStatus = isClinicOpen ? "OPEN" : "CLOSED";
+        console.log('Klinik durumu (güncel):', isClinicOpen ? 'AÇIK 🟢' : 'KAPALI 🔴');
+      } else {
+        updatedStats.isOpen = false;
+        updatedStats.clinicStatus = "CLOSED";
+        console.warn('Bugünkü çalışma saati bulunamadı, klinik kapalı kabul edildi.');
+      }
+      
+      // Güncellenmiş nesne ile state'i güncelle
       setProfile(profileData);
-      setStats(statsData);
+      setStats(updatedStats);
+      console.log('Dashboard state güncellemesi - stats:', updatedStats);
       setError('');
     } catch (err) {
+      console.error('Dashboard veri yüklenirken hata:', err);
       setError(err.message || 'Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
@@ -120,22 +163,7 @@ const VeterinaryDashboard = () => {
       setUpdateLoading(false);
     }
   };
-
-  // Navigation handlers for quick action buttons
-  const handleNavigateToCustomers = () => {
-    navigate('/dashboard/customers');
-  };
-  const handleNavigateToAppointments = () => {
-    navigate('/dashboard/appointments');
-  };
-
-  const handleNavigateToCalendar = () => {
-    navigate('/dashboard/calendar');
-  };
-
-  const handleNavigateToWorkingHours = () => {
-    navigate('/dashboard/working-hours');
-  };
+  // Buradaki eski navigate fonksiyonları kaldırıldı
 
   if (loading) {
     return (
@@ -182,10 +210,7 @@ const VeterinaryDashboard = () => {
             </span>
           </div>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="stats-grid">
+      </div>      {/* Stats Cards */}      <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon">
             <Person />
@@ -195,14 +220,14 @@ const VeterinaryDashboard = () => {
             <p>Toplam Müşteri</p>
           </div>
         </div>
-
+        
         <div className="stat-card">
           <div className="stat-icon">
-            <TrendingUp />
+            <CalendarMonth />
           </div>
           <div className="stat-content">
-            <h3>{stats?.profileCompleteness || 0}%</h3>
-            <p>Profil Tamamlanma</p>
+            <h3>{stats?.todaysAppointments || 0}</h3>
+            <p>Bugünkü Randevu</p>
           </div>
         </div>
 
@@ -214,7 +239,32 @@ const VeterinaryDashboard = () => {
             <h3>{profile?.clinicName || 'Belirtilmemiş'}</h3>
             <p>Klinik Adı</p>
           </div>
-        </div>        <div className="stat-card">
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon">
+            <TrendingUp />
+          </div>
+          <div className="stat-content">
+            <h3>{stats?.profileCompleteness || 0}%</h3>
+            <p>Profil Tamamlanma</p>
+          </div>
+        </div>        
+        
+        <div className="stat-card">
+          <div className="stat-icon">
+            <LocalHospital />
+          </div>
+          <div className="stat-content">
+            <h3>{stats?.isOpen === true ? 'Açık' : 'Kapalı'}</h3>
+            <p>Klinik Durumu</p>
+          </div>
+          <div className={`status-indicator ${stats?.isOpen === true ? 'status-open' : 'status-closed'}`}>
+            <span className="status-dot"></span>
+          </div>
+        </div>
+        
+        <div className="stat-card">
           <div className="stat-icon">
             <TrendingUp />
           </div>
@@ -295,68 +345,7 @@ const VeterinaryDashboard = () => {
                   ))}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Working Hours */}
-      <div className="working-hours">
-        <h2>Çalışma Saatleri</h2>
-        <div className="hours-grid">
-          <div className="day-hours">
-            <span className="day">Pazartesi:</span>
-            <span className="hours">{profile?.mondayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Salı:</span>
-            <span className="hours">{profile?.tuesdayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Çarşamba:</span>
-            <span className="hours">{profile?.wednesdayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Perşembe:</span>
-            <span className="hours">{profile?.thursdayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Cuma:</span>
-            <span className="hours">{profile?.fridayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Cumartesi:</span>
-            <span className="hours">{profile?.saturdayHours || 'Kapalı'}</span>
-          </div>
-          <div className="day-hours">
-            <span className="day">Pazar:</span>
-            <span className="hours">{profile?.sundayHours || 'Kapalı'}</span>
-          </div>
-        </div>      </div>
-        {/* Quick Actions */}
-      <div className="quick-actions">
-        <h2>Hızlı Erişim</h2>
-        <p>Sol menüden müşteri ve randevu işlemlerini yönetebilirsiniz.</p>        <div className="actions-grid">
-          <button className="action-btn" onClick={handleNavigateToCustomers}>
-            <Person />
-            <span>Müşterilerim</span>
-          </button>
-          <button className="action-btn" onClick={handleNavigateToAppointments}>
-            <Schedule />
-            <span>Randevular</span>
-          </button>
-          <button className="action-btn" onClick={handleNavigateToCalendar}>
-            <CalendarMonth />
-            <span>Takvim</span>
-          </button>
-          <button className="action-btn" onClick={handleNavigateToWorkingHours}>
-            <AccessTime />
-            <span>Çalışma Saatleri</span>
-          </button>
-          <button className="action-btn" onClick={() => navigate('/dashboard/medical-records')}>
-            <LocalHospital />
-            <span>Tıbbi Kayıtlar</span>
-          </button>
+            )}          </div>
         </div>
       </div>
 

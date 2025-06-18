@@ -10,20 +10,107 @@ import {
   Card,
   CardContent,
   Avatar,
-  Paper
+  Paper,
+  Divider
 } from '@mui/material';
 import {
   Pets,
   LocalHospital,
   People,
-  TrendingUp
+  TrendingUp,
+  EventNote,
+  Equalizer,
+  PieChart,
+  Timeline,
+  DateRange
 } from '@mui/icons-material';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title } from 'chart.js';
+import { Pie, Line, Bar } from 'react-chartjs-2';
+
+// ChartJS bileşenlerini kaydet
+ChartJS.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
 const DashboardHome = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+    // Grafikler için başlangıç verileri
+  const [chartData, setChartData] = useState({
+    medicalTypeStats: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Tıbbi İşlem Maliyeti (TL)',
+          data: [],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+          ],
+          borderWidth: 1
+        },
+        {
+          label: 'İşlem Sayısı',
+          data: [],
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgb(54, 162, 235)',
+          borderWidth: 1,
+          type: 'line',
+          yAxisID: 'countAxis'
+        }
+      ]
+    },
+    appointmentsOverTime: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Günlük Randevu Sayısı',
+          data: [],
+          backgroundColor: 'rgba(75, 192, 192, 0.5)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          fill: true
+        }
+      ]
+    },
+    petTypeStats: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Hayvan Türü Sayısı',
+          data: [],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+          ],
+          borderWidth: 1
+        }
+      ]
+    }
+  });
+
   useEffect(() => {
     if (user?.role === 'ADMIN') {
       fetchAdminDashboardStats();
@@ -47,12 +134,108 @@ const DashboardHome = () => {
       setLoading(false);
     }
   };
-
   const fetchVeterinaryDashboardStats = async () => {
     try {
       setLoading(true);
+      
+      // Ana dashboard istatistiklerini getir
       const dashboardStats = await veterinaryService.getDashboardStats();
       setStats(dashboardStats);
+      
+      // Tıbbi kayıt türleri maliyetleri ve randevu tarih verilerini getir
+      const [medicalTypeData, appointmentDateData, petTypeData] = await Promise.all([
+        veterinaryService.getMedicalTypeStats(),
+        veterinaryService.getAppointmentDateStats('month'),
+        veterinaryService.getPetTypeStats()
+      ]);
+      
+      // Chart verilerini güncelle
+      setChartData({
+        // Tıbbi kayıt türlerine göre maliyet grafiği verileri
+        medicalTypeStats: {
+          labels: medicalTypeData?.data?.types || [],
+          datasets: [
+            {
+              label: 'Tıbbi İşlem Maliyeti (TL)',
+              data: medicalTypeData?.data?.costs || [],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(201, 203, 207, 0.6)'
+              ],
+              borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)',
+                'rgb(201, 203, 207)'
+              ],
+              borderWidth: 1
+            },
+            {
+              label: 'İşlem Sayısı',
+              data: medicalTypeData?.data?.counts || [],
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgb(54, 162, 235)',
+              borderWidth: 1,
+              type: 'line',
+              yAxisID: 'countAxis'
+            }
+          ]
+        },
+        
+        // Tarih bazlı randevu sayıları
+        appointmentsOverTime: {
+          labels: appointmentDateData?.data?.labels || [],
+          datasets: [
+            {
+              label: 'Randevu Sayısı',
+              data: appointmentDateData?.data?.counts || [],
+              backgroundColor: 'rgba(75, 192, 192, 0.5)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+              fill: true
+            }
+          ]
+        },
+        
+        // Hayvan türlerine göre randevu dağılımı
+        petTypeStats: {
+          labels: petTypeData?.data?.types || [],
+          datasets: [
+            {
+              label: 'Hayvan Türü Sayısı',
+              data: petTypeData?.data?.counts || [],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(201, 203, 207, 0.6)'
+              ],
+              borderColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)',
+                'rgb(201, 203, 207)'
+              ],
+              borderWidth: 1
+            }
+          ]
+        }
+      });
+      
       setError(null);
     } catch (err) {
       console.error('Veterinary dashboard stats fetch error:', err);
@@ -203,9 +386,9 @@ const DashboardHome = () => {
         },
         {
           title: 'Klinik Durumu',
-          value: stats?.clinicStatus === 'ACTIVE' ? 'Aktif' : 'Kapalı',
+          value: stats?.clinicStatus === 'OPEN' || stats?.isOpen === true ? 'Açık' : 'Kapalı',
           icon: <LocalHospital />,
-          color: stats?.clinicStatus === 'ACTIVE' ? '#388e3c' : '#d32f2f'
+          color: stats?.clinicStatus === 'OPEN' || stats?.isOpen === true ? '#388e3c' : '#d32f2f'
         }
       ];
     }
@@ -228,9 +411,7 @@ const DashboardHome = () => {
     }
 
     return [];
-  };
-
-  const statsCards = getStatsCards();
+  };  const statsCards = getStatsCards();
 
   return (
     <Box>
@@ -269,7 +450,119 @@ const DashboardHome = () => {
             </Card>
           </Grid>
         ))}
-      </Grid>
+      </Grid>      {user?.role === 'VETERINARY' && (
+        <Box mt={4}>
+          <Grid container spacing={3}>
+            {/* Tıbbi Kayıt Türleri Maliyeti ve Sayıları */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 3, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Tıbbi İşlem Maliyetleri ve Sayıları
+                </Typography>
+                <Box height={350} display="flex" alignItems="center" justifyContent="center">
+                  <Bar 
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Tıbbi İşlem Maliyetleri ve Sayıları' },
+                        tooltip: {
+                          callbacks: {
+                            label: function(context) {
+                              let label = context.dataset.label || '';
+                              if (label) {
+                                label += ': ';
+                              }
+                              if (context.parsed.y !== null) {
+                                if (context.dataset.label === 'Tıbbi İşlem Maliyeti (TL)') {
+                                  label += `${context.parsed.y.toLocaleString('tr-TR')} TL`;
+                                } else {
+                                  label += context.parsed.y;
+                                }
+                              }
+                              return label;
+                            }
+                          }
+                        }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: 'Maliyet (TL)'
+                          }
+                        },
+                        countAxis: {
+                          position: 'right',
+                          beginAtZero: true,
+                          grid: { drawOnChartArea: false },
+                          title: {
+                            display: true,
+                            text: 'İşlem Sayısı'
+                          }
+                        }
+                      }
+                    }} 
+                    data={chartData.medicalTypeStats} 
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+    
+            {/* Günlük Randevu İstatistikleri */}
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Son 30 Günlük Randevu Sayıları
+                </Typography>
+                <Box height={300} display="flex" alignItems="center" justifyContent="center">
+                  <Line 
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Son 30 Gün Randevu Trendi' }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: 'Randevu Sayısı'
+                          }
+                        }
+                      }
+                    }}
+                    data={chartData.appointmentsOverTime} 
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+            
+            {/* Hayvan Türleri Dağılımı */}
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, height: '100%' }}>
+                <Typography variant="h6" gutterBottom>
+                  Hayvan Türleri Dağılımı
+                </Typography>
+                <Box height={300} display="flex" alignItems="center" justifyContent="center">
+                  <Pie 
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: { position: 'right', labels: { padding: 20 } },
+                        title: { display: true, text: 'Hayvan Türlerine Göre Dağılım' }
+                      }
+                    }} 
+                    data={chartData.petTypeStats} 
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      )}
 
       <Box mt={4}>
         <Paper sx={{ p: 3 }}>
@@ -278,7 +571,7 @@ const DashboardHome = () => {
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {user?.role === 'ADMIN' && 'Sol menüden veteriner kayıt işlemleri, kullanıcı yönetimi ve onay bekleyen işlemleri gerçekleştirebilirsiniz.'}
-            {user?.role === 'VETERINARY' && 'Sol menüden müşteri ve randevu işlemlerini yönetebilirsiniz.'}
+            {user?.role === 'VETERINARY' && 'Sol menüden müşteri ve randevu işlemlerini yönetebilirsiniz. Yukarıdaki grafikler, kliniğinizin performans ve istatistiklerini göstermektedir.'}
             {user?.role === 'CUSTOMER' && 'Sol menüden hayvanlarınızı ve randevularınızı yönetebilirsiniz.'}
           </Typography>
         </Paper>

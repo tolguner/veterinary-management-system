@@ -38,6 +38,20 @@ const WorkingHoursSetup = () => {
         // Mevcut çalışma saatlerini yükle
         let loadedSchedules = [...response.data];
         
+        // Backend'den gelen property ismi düzeltmesi
+        // isAvailable -> available olarak serialize edildiğinden, tekrar isAvailable'a çeviriyoruz
+        loadedSchedules = loadedSchedules.map(schedule => {
+          // Eski veri yapısında isAvailable varsa koru, yoksa available'ı kullan
+          const isAvailable = schedule.isAvailable !== undefined ? 
+            schedule.isAvailable : 
+            schedule.available !== undefined ? schedule.available : true; // Varsayılan olarak true
+          
+          return {
+            ...schedule,
+            isAvailable  // Eksik olan isAvailable değerini ekle
+          };
+        });
+        
         // Eksik günler için varsayılan değerleri ekle
         defaultDays.forEach(defaultDay => {
           if (!loadedSchedules.some(s => s.dayOfWeek === defaultDay.dayOfWeek)) {
@@ -95,11 +109,18 @@ const WorkingHoursSetup = () => {
       return updated;
     });
   };
-
   const saveSchedule = async () => {
     try {
       setLoading(true);
-      const response = await scheduleService.updateFullSchedule(schedules);
+      
+      // Backend'e göndermeden önce isAvailable -> available'a çevir
+      const schedulesToSave = schedules.map(schedule => ({
+        ...schedule,
+        // Backend Java tarafında property 'available' olarak bekleniyor
+        available: schedule.isAvailable
+      }));
+      
+      const response = await scheduleService.updateFullSchedule(schedulesToSave);
       
       if (response.success) {
         alert("Çalışma saatleri başarıyla kaydedildi!");

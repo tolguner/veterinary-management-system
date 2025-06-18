@@ -105,6 +105,128 @@ class VeterinaryService {
       throw this.handleError(error);
     }
   }
+  // Bugünkü çalışma saati bilgisini getir
+  async getTodaySchedule() {
+    try {
+      console.log("veterinaryService.getTodaySchedule: İstek gönderiliyor");
+      const response = await apiClient.get('/veterinaries/today-schedule');
+      console.log("veterinaryService.getTodaySchedule: Yanıt alındı", response.data);
+      
+      // Yanıt veri bütünlüğünü kontrol et ve düzelt
+      const data = response.data || {};
+      
+      // Boolean değerleri kesinleştir
+      if (data.isAvailable === undefined && data.available !== undefined) {
+        data.isAvailable = !!data.available;
+      } else if (data.isAvailable === undefined) {
+        data.isAvailable = false;
+      }
+      
+      // found değerinin olduğundan emin ol
+      if (data.found === undefined) {
+        data.found = false;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error("veterinaryService.getTodaySchedule: Hata", error);
+      // Hata durumunda varsayılan değerler ile bir nesne döndür
+      return {
+        found: false,
+        isAvailable: false,
+        available: false,
+        error: error.message || "Çalışma saati bilgisi alınamadı",
+        statusText: "KAPALI",
+        statusCode: "CLOSED"
+      };
+    }
+  }
+  // Tıbbi kayıt türlerine göre maliyet istatistiklerini getir
+  async getMedicalTypeStats() {
+    try {
+      const response = await apiClient.get('/veterinaries/stats/medical-types');
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error("Tıbbi kayıt tipi istatistikleri alınırken hata:", error);
+      // Test verileri döndür (API hazır değilse veya hata durumunda)
+      return {
+        success: false,
+        error: error.message,
+        data: {
+          types: ["Muayene", "Aşılama", "Cerrahi", "Teşhis Testi", "Kontrol"],
+          costs: [2800, 1500, 5000, 1200, 800],
+          counts: [15, 22, 5, 12, 8]
+        }
+      };
+    }
+  }
+
+  // Belirli bir dönem için tarih bazlı randevu istatistiklerini getir
+  async getAppointmentDateStats(period = 'month') {
+    try {
+      const response = await apiClient.get(`/veterinaries/stats/appointments?period=${period}`);
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error("Randevu tarih istatistikleri alınırken hata:", error);
+      // Test verileri döndür (API hazır değilse veya hata durumunda)
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      
+      // Şu anki ay için son 30 günün verileri
+      const lastMonthData = {
+        success: false,
+        error: error.message,
+        data: {
+          labels: Array.from({length: 30}, (_, i) => {
+            const date = new Date(currentYear, currentMonth, today.getDate() - 29 + i);
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+          }),
+          counts: Array.from({length: 30}, () => Math.floor(Math.random() * 5))
+        }
+      };
+      
+      // Yıllık veriler
+      const yearlyData = {
+        success: false,
+        error: error.message,
+        data: {
+          labels: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
+          counts: [25, 32, 41, 29, 35, 40, 38, 25, 30, 42, 28, 20]
+        }
+      };
+      
+      return period === 'year' ? yearlyData : lastMonthData;
+    }
+  }
+
+  // En çok randevu alan hayvan türlerini getir
+  async getPetTypeStats() {
+    try {
+      const response = await apiClient.get('/veterinaries/stats/pet-types');
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error("Hayvan türü istatistikleri alınırken hata:", error);
+      // Test verileri döndür (API hazır değilse veya hata durumunda)
+      return {
+        success: false,
+        error: error.message,
+        data: {
+          types: ["Kedi", "Köpek", "Kuş", "Balık", "Kemirgen", "Sürüngen", "Diğer"],
+          counts: [28, 42, 10, 5, 8, 3, 4]
+        }
+      };
+    }
+  }
 
   // Hata yönetimi
   handleError(error) {

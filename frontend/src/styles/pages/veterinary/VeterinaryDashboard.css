@@ -78,9 +78,10 @@
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-5);
   margin-bottom: var(--space-8);
+  animation: fadeIn 0.8s ease-out;
 }
 
 .stat-card {
@@ -92,6 +93,8 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
 }
 
 .stat-card::before {
@@ -125,42 +128,83 @@
   color: white;
   margin-bottom: var(--space-4);
   box-shadow: 0 8px 16px rgba(15, 118, 110, 0.3);
+  font-size: 2.25rem;
+  color: var(--color-primary-600);
+  margin-right: var(--space-4);
 }
 
-.stat-card:nth-child(2) .stat-icon {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.3);
-}
-
-.stat-card:nth-child(3) .stat-icon {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
-  box-shadow: 0 8px 16px rgba(220, 38, 38, 0.3);
-}
-
-.stat-card:nth-child(4) .stat-icon {
-  background: linear-gradient(135deg, #ea580c, #f97316);
-  box-shadow: 0 8px 16px rgba(234, 88, 12, 0.3);
-}
-
-.stat-icon svg {
-  font-size: 28px;
+.stat-content {
+  flex-grow: 1;
 }
 
 .stat-content h3 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1f2937;
-  margin: 0 0 var(--space-1) 0;
-  line-height: 1;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-gray-900);
+  line-height: 1.2;
 }
 
 .stat-content p {
-  color: #6b7280;
   font-size: 0.875rem;
-  font-weight: 600;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
+  color: var(--color-gray-500);
+  margin: var(--space-1) 0 0;
+  font-weight: 500;
+}
+
+/* Klinik durum göstergesi */
+.status-indicator {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: var(--space-4);
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+  position: relative;
+}
+
+.status-dot::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.3;
+  animation: pulse 2s infinite;
+}
+
+.status-open .status-dot,
+.status-open .status-dot::after {
+  background-color: #10b981; /* Yeşil */
+}
+
+.status-closed .status-dot,
+.status-closed .status-dot::after {
+  background-color: #ef4444; /* Kırmızı */
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+  }
 }
 
 /* Profile Summary */
@@ -1598,7 +1642,6 @@
 
 .stat-content p {
   color: #4a5568 !important; /* Force medium gray for stat labels */
-  font-weight: var(--font-weight-medium);
 }
 
 /* Responsive Design */

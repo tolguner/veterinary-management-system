@@ -418,6 +418,69 @@
   margin: 0;
 }
 
+/* Grafik alanları için stil */
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grafikler için kart stilleri */
+.chart-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.chart-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+}
+
+.chart-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #334155;
+  display: flex;
+  align-items: center;
+}
+
+.chart-title-icon {
+  margin-right: 8px;
+  color: #0f766e;
+}
+
+/* Grafikler arası boşluk */
+.chart-grid {
+  margin-top: 24px;
+}
+
+/* Veteriner için özel dashboard stil */
+.veterinary-charts-container {
+  margin-top: 32px;
+}
+
+/* Grafik container için responsive düzenlemeler */
+@media (max-width: 960px) {
+  .chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 600px) {
+  .chart-container {
+    height: 200px;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .welcome-header {

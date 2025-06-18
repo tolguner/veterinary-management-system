@@ -44,11 +44,11 @@ const CreateMedicalRecord = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [appointmentData, setAppointmentData] = useState(null);
+
   const [formData, setFormData] = useState({
     // Common fields
     petId: '',
     recordType: '',
-    appointmentId: '', // Yeni eklenen alan - randevu ile tıbbi kayıt ilişkisini tutmak için
     
     // Analysis fields
     analysisType: '',
@@ -97,41 +97,16 @@ const CreateMedicalRecord = () => {
     { value: 'SURGERY', label: 'Ameliyat', icon: <LocalHospital /> },
     { value: 'PRESCRIPTION', label: 'Reçete', icon: <Medication /> }
   ];
+
   // Müşteri ve hayvan bilgilerini getir
   const loadCustomers = async () => {
     try {
       setLoading(true);
       const customers = await medicalRecordService.getVeterinaryCustomers();
-      
-      if (Array.isArray(customers)) {
-        setCustomers(customers);
-      } else {
-        console.log('Customers is not an array:', customers);
-        setCustomers([]);
-      }
+      setCustomers(customers || []);
     } catch (error) {
       console.error('Error loading customers:', error);
       setError('Müşteriler yüklenirken bir hata oluştu.');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Müşterinin hayvanlarını yükle
-  const loadCustomerPets = async (customerId) => {
-    try {
-      setLoading(true);
-      const pets = await medicalRecordService.getCustomerPets(customerId);
-      
-      if (Array.isArray(pets)) {
-        setCustomerPets(pets);
-      } else {
-        console.log('Pets is not an array:', pets);
-        setCustomerPets([]);
-      }
-    } catch (err) {
-      console.error('Load pets error:', err);
-      setError('Hayvanlar yüklenirken hata oluştu.');
     } finally {
       setLoading(false);
     }
@@ -257,25 +232,73 @@ const CreateMedicalRecord = () => {
         }
       } catch (error) {
         console.error('Randevu yüklenirken hata:', error);
-        setError('Randevu bilgileri yüklenirken bir hata oluştu.');      } finally {
+        setError('Randevu bilgileri yüklenirken bir hata oluştu.');
+      } finally {
         setLoading(false);
       }
     };
     
     if (appointmentIdFromUrl) {
       loadAppointmentData(appointmentIdFromUrl);
-    } 
-  }, [appointmentIdFromUrl, handlePetFromUrl]);
-  // Pet ID'den hayvanı ve müşteriyi yükleme için ayrı useEffect
-  useEffect(() => {
-    if (petIdFromUrl && customers.length > 0) {
-      handlePetFromUrl(petIdFromUrl);
+    }  }, [appointmentIdFromUrl, handlePetFromUrl]);
+        if (foundPet) {
+          setSelectedCustomer(customer);
+          setCustomerPets(pets);
+          setSelectedPet(foundPet);
+          setFormData(prev => ({ ...prev, petId: petId }));
+          setActiveStep(2); // Skip to record type selection
+          break;
+        }
+      }
+    } catch (error) {
+      console.error('Error finding pet by URL:', error);
     }
-  }, [customers, petIdFromUrl, handlePetFromUrl]);
-  
-  // İlk yükleme için useEffect
-  useEffect(() => {    loadCustomers();
-  }, []);
+  }, [customers]);
+
+  const loadCustomers = async () => {
+    try {
+      setLoading(true);
+      console.log('Loading customers...');
+      const customers = await medicalRecordService.getVeterinaryCustomers();
+      console.log('Customers from service:', customers);
+      
+      // medicalRecordService.getVeterinaryCustomers() zaten response.data.data döndürüyor
+      if (Array.isArray(customers)) {
+        setCustomers(customers);
+        console.log('Customers set:', customers.length);
+      } else {
+        console.log('Customers is not an array:', customers);
+        setCustomers([]);
+      }
+    } catch (err) {
+      console.error('Load customers error:', err);
+      setError('Müşteriler yüklenirken hata oluştu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadCustomerPets = async (customerId) => {
+    try {
+      setLoading(true);
+      console.log('Loading pets for customer:', customerId);
+      const pets = await medicalRecordService.getCustomerPets(customerId);
+      console.log('Pets from service:', pets);
+      
+      // medicalRecordService.getCustomerPets() zaten response.data.data döndürüyor
+      if (Array.isArray(pets)) {
+        setCustomerPets(pets);
+        console.log('Pets set:', pets.length);
+      } else {
+        console.log('Pets is not an array:', pets);
+        setCustomerPets([]);
+      }
+    } catch (err) {
+      console.error('Load pets error:', err);
+      setError('Hayvanlar yüklenirken hata oluştu: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);

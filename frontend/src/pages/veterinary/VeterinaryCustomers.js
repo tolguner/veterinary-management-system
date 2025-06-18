@@ -455,14 +455,14 @@ const VeterinaryCustomers = () => {
                   onClick={() => handleViewDetails(customer)}
                 >
                   <i className="icon-eye"></i>
-                  Detayları Gör
+                  <span>Detayları Gör</span>
                 </button>
                 <button 
                   className="btn-outline"
                   onClick={() => handleEditCustomer(customer)}
                 >
                   <i className="icon-edit"></i>
-                  Düzenle
+                  <span>Düzenle</span>
                 </button>
               </div>
             </div>

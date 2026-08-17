@@ -1,0 +1,175 @@
+.appointment-calendar-container {
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-calendar-container h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.calendar-wrapper {
+  margin-bottom: 2rem;
+}
+
+/* React Big Calendar özelleştirmeleri */
+.rbc-month-view {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.rbc-month-header {
+  background-color: #f8fafc;
+}
+
+.rbc-header {
+  padding: 10px;
+  font-weight: bold;
+  text-transform: capitalize;
+  color: #334155;
+}
+
+.rbc-day-bg {
+  transition: background-color 0.2s;
+}
+
+.rbc-day-bg:hover {
+  background-color: rgba(239, 246, 255, 0.6);
+}
+
+.rbc-today {
+  background-color: rgba(239, 246, 255, 0.8) !important;
+}
+
+.rbc-event {
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin: 1px 0;
+  font-size: 0.8rem;
+}
+
+.rbc-toolbar button {
+  color: #334155;
+  border-color: #e2e8f0;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Müsait saatler bölümü */
+.available-slots-container {
+  background-color: #f8fafc;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.available-slots-container h3 {
+  font-size: 1.25rem;
+  color: #334155;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+}
+
+.available-slots-container h4 {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+}
+
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.time-slot {
+  background-color: #3b82f6;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-slot:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.no-slots-message {
+  color: #64748b;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+/* Durum açıklamaları */
+.status-legend {
+  background-color: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.status-legend h4 {
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 0.75rem;
+}
+
+.legend-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.color-box {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.status-name {
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid #f5c6cb;
+}

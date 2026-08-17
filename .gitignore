@@ -1,0 +1,21 @@
+# Kok seviye gitignore. Bilesene ozel kurallar backend/.gitignore ve
+# frontend/.gitignore dosyalarindadir.
+
+# Ortam degiskenleri - sir icerir, asla commit'lenmemeli
+.env
+.env.local
+!.env.example
+
+# Derleme ciktilari
+target/
+build/
+node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Isletim sistemi
+.DS_Store
+Thumbs.db

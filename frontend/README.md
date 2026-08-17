@@ -3,21 +3,8 @@
 Veteriner kliniği yönetim sisteminin React arayüzü. Rol bazlı (ADMIN / VETERINARY /
 CUSTOMER) panellerle müşteri, hayvan, randevu ve tıbbi kayıt yönetimi sağlar.
 
-Backend ayrı repodadır: [veterinary-management-system](https://github.com/tolguner/veterinary-management-system) (Spring Boot).
-
-## Ekip
-
-Bu bir **ekip projesidir**, Işık Üniversitesi kapsamında geliştirilmiştir.
-Bu depodaki kodun tamamı aşağıdaki ekip tarafından yazılmıştır.
-
-| Katkıda bulunan | Rol |
-|---|---|
-| [Oğulcan Kacar](https://github.com/OgulcanKacar1) | Arayüzün tamamı — commit'lerin çoğunluğu |
-| [Bekir Kadir Demiraslan](https://github.com/bekir331) | Frontend katkıları |
-
-Projenin özgün geliştirme geçmişi
-[OgulcanKacar1/veterinary-management-front](https://github.com/OgulcanKacar1/veterinary-management-front)
-deposunda yer alır. Bu depo aynı geçmişi taşıyan bağımsız bir kopyadır.
+Bu, projenin frontend bileşenidir. Genel bakış, ekip künyesi ve tam kurulum akışı için
+[kökteki README](../README.md) dosyasına bakın. Backend: [../backend](../backend).
 
 ## Durum
 

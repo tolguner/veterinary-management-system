@@ -4,23 +4,8 @@ Veteriner kliniklerinin müşteri, hayvan, randevu ve tıbbi kayıt süreçlerin
 Spring Boot REST API'si. JWT tabanlı kimlik doğrulama ve rol bazlı yetkilendirme
 (ADMIN / VETERINARY / CUSTOMER) içerir.
 
-Frontend ayrı repodadır: [veterinary-management-front](https://github.com/tolguner/veterinary-management-front) (React).
-
-## Ekip
-
-Bu bir **ekip projesidir**, Işık Üniversitesi kapsamında geliştirilmiştir.
-Tek kişilik bir çalışma değildir; kodun büyük bölümü aşağıdaki ekip tarafından yazılmıştır.
-
-| Katkıda bulunan | Rol |
-|---|---|
-| [Oğulcan Kacar](https://github.com/OgulcanKacar1) | Backend mimarisi, tıbbi kayıt ve randevu modülleri — commit'lerin çoğunluğu |
-| [Bekir Kadir Demiraslan](https://github.com/bekir331) | Backend ve frontend katkıları |
-| [Tolga Olguner](https://github.com/tolguner) | Yapılandırma güvenliği, dokümantasyon |
-
-Projenin özgün geliştirme geçmişi
-[OgulcanKacar1/veterinary-management-system](https://github.com/OgulcanKacar1/veterinary-management-system)
-deposunda yer alır. Bu depo, aynı geçmişi taşıyan bağımsız bir kopyadır
-(yapılandırmadaki sırlar geçmişten temizlenmiştir).
+Bu, projenin backend bileşenidir. Genel bakış, ekip künyesi ve tam kurulum akışı için
+[kökteki README](../README.md) dosyasına bakın. Frontend: [../frontend](../frontend).
 
 ## Durum
 

@@ -1,70 +1,94 @@
-# Getting Started with Create React App
+# Veteriner Yönetim Sistemi — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Veteriner kliniği yönetim sisteminin React arayüzü. Rol bazlı (ADMIN / VETERINARY /
+CUSTOMER) panellerle müşteri, hayvan, randevu ve tıbbi kayıt yönetimi sağlar.
 
-## Available Scripts
+Backend ayrı repodadır: [veterinary-management-system](https://github.com/tolguner/veterinary-management-system) (Spring Boot).
 
-In the project directory, you can run:
+## Ekip
 
-### `npm start`
+Bu bir **ekip projesidir**, Işık Üniversitesi kapsamında geliştirilmiştir.
+Bu depodaki kodun tamamı aşağıdaki ekip tarafından yazılmıştır.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Katkıda bulunan | Rol |
+|---|---|
+| [Oğulcan Kacar](https://github.com/OgulcanKacar1) | Arayüzün tamamı — commit'lerin çoğunluğu |
+| [Bekir Kadir Demiraslan](https://github.com/bekir331) | Frontend katkıları |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Projenin özgün geliştirme geçmişi
+[OgulcanKacar1/veterinary-management-front](https://github.com/OgulcanKacar1/veterinary-management-front)
+deposunda yer alır. Bu depo aynı geçmişi taşıyan bağımsız bir kopyadır.
 
-### `npm test`
+## Durum
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Çalışır durumda, **geliştirme aşamasında**. Temel akışlar (giriş, rol bazlı paneller,
+hayvan/randevu/tıbbi kayıt ekranları) uygulanmış. Otomatik test yoktur.
 
-### `npm run build`
+## Teknolojiler
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- React 19
+- Material UI 7 (@mui/material, @emotion)
+- React Router 7
+- Axios (JWT token'ı otomatik ekleyen interceptor ile)
+- React Hook Form + Yup (form doğrulama)
+- Chart.js + react-chartjs-2 (grafikler)
+- react-big-calendar + moment (takvim)
+- Create React App (react-scripts 5)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Kurulum
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 1. Gereksinimler
 
-### `npm run eject`
+- Node.js 18 veya üzeri
+- Çalışır durumda backend (bkz. backend reposundaki kurulum adımları)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 2. Bağımlılıkları yükle
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm install
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 3. API adresini ayarla (opsiyonel)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Varsayılan olarak `http://localhost:8080/api` kullanılır. Değiştirmek için proje
+kökünde `.env` dosyası oluştur:
 
-## Learn More
+```
+REACT_APP_API_BASE_URL=http://localhost:8080/api
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 4. Çalıştır
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm start
+```
 
-### Code Splitting
+Uygulama `http://localhost:3000` adresinde açılır. Backend'in CORS ayarı yalnızca
+bu adrese izin verir.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 5. Giriş
 
-### Analyzing the Bundle Size
+Backend ilk açılışta `admin` / `123456aA` hesabını oluşturur.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Proje yapısı
 
-### Making a Progressive Web App
+```
+src/
+├── components/      # Ortak bileşenler (layout, common)
+├── contexts/        # React context'leri (kimlik doğrulama vb.)
+├── pages/           # Rol bazlı sayfalar
+│   ├── admin/
+│   ├── veterinary/
+│   └── customer/
+├── services/        # apiClient ve API çağrıları
+└── styles/
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Eksikler
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Otomatik test yok.** Testing Library kurulu ama test yazılmamış.
+- **Konsol log'ları temizlenmeli.** `apiClient.js` token içeriğini konsola yazıyor —
+  üretimde kaldırılmalı.
+- **Hata yönetimi tutarsız.** Sayfalar arası ortak bir hata/bildirim mekanizması yok.
+- **Yükleme durumları eksik.** Bazı ekranlarda istek beklenirken geri bildirim yok.
+- **Erişilebilirlik gözden geçirilmedi.**

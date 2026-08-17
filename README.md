@@ -35,20 +35,12 @@ paneli üzerinden sisteme erişir. Kimlik doğrulama JWT ile, yetkilendirme rol 
 ## Ekip
 
 Bu bir **ekip projesidir**, Işık Üniversitesi kapsamında geliştirilmiştir.
-Tek kişilik bir çalışma değildir; kodun büyük bölümü aşağıdaki ekip tarafından yazılmıştır.
 
 | Katkıda bulunan | Rol |
 |---|---|
-| [Oğulcan Kacar](https://github.com/OgulcanKacar1) | Backend mimarisi, tıbbi kayıt ve randevu modülleri, arayüzün büyük bölümü — commit'lerin çoğunluğu |
-| [Bekir Kadir Demiraslan](https://github.com/bekir331) | Backend ve frontend katkıları |
-| [Tolga Olguner](https://github.com/tolguner) | Yapılandırma güvenliği, dokümantasyon, depo yapısı |
-
-Projenin özgün geliştirme geçmişi
-[OgulcanKacar1/veterinary-management-system](https://github.com/OgulcanKacar1/veterinary-management-system)
-ve
-[OgulcanKacar1/veterinary-management-front](https://github.com/OgulcanKacar1/veterinary-management-front)
-depolarında yer alır. Bu depo, her iki geçmişi de commit bazında koruyarak birleştiren
-bağımsız bir kopyadır.
+| [Tolga Olguner](https://github.com/tolguner) | Proje yönetimi ve koordinasyon |
+| [Oğulcan Kacar](https://github.com/OgulcanKacar1) | Baş geliştirici — backend mimarisi ve arayüzün büyük bölümü |
+| [Bekir Kadir Demiraslan](https://github.com/bekir331) | Geliştirici — backend ve frontend katkıları |
 
 ---
 

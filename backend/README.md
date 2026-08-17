@@ -24,8 +24,8 @@ deposunda yer alır. Bu depo, aynı geçmişi taşıyan bağımsız bir kopyadı
 
 ## Durum
 
-Çalışır durumda, ancak **geliştirme aşamasında**. Proje derleniyor ve ayağa kalkıyor;
-temel akışlar (kayıt, giriş, hayvan/randevu/tıbbi kayıt yönetimi) uygulanmış durumda.
+**Geliştirme aşamasında.** Proje derleniyor (`mvnw compile` temiz geçiyor) ve temel
+akışlar (kayıt, giriş, hayvan/randevu/tıbbi kayıt yönetimi) uygulanmış durumda.
 Otomatik test yoktur ve API dokümantasyonu eksiktir — üretime hazır değildir.
 
 ## Teknolojiler

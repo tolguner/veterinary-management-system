@@ -71,11 +71,7 @@ src/
 └── styles/
 ```
 
-## Eksikler
+## Gelecek çalışmalar
 
-- **Otomatik test yok.** Testing Library kurulu ama test yazılmamış.
-- **Konsol log'ları temizlenmeli.** `apiClient.js` token içeriğini konsola yazıyor —
-  üretimde kaldırılmalı.
-- **Hata yönetimi tutarsız.** Sayfalar arası ortak bir hata/bildirim mekanizması yok.
-- **Yükleme durumları eksik.** Bazı ekranlarda istek beklenirken geri bildirim yok.
-- **Erişilebilirlik gözden geçirilmedi.**
+Frontend'e ilişkin planlanan adımlar kökteki
+[Gelecek çalışmalar](../README.md#gelecek-çalışmalar) bölümünde listelenmiştir.

@@ -113,17 +113,10 @@ src/main/java/com/example/vms_project/
 └── services/        # İş mantığı
 ```
 
-## Eksikler
+## Gelecek çalışmalar
 
-- **Otomatik test yok.** `src/test` boş; birim ve entegrasyon testleri yazılmalı.
-- **API dokümantasyonu yok.** Swagger/OpenAPI eklenmeli; uç listesi şu an elle tutuluyor.
-- **Global hata yönetimi zayıf.** Controller'larda `try/catch` tekrarı var,
-  `@ControllerAdvice` ile merkezileştirilmeli.
-- **Girdi doğrulama eksik.** DTO'larda Bean Validation (`@Valid`, `@NotBlank`) kullanılmıyor.
-- **Varsayılan admin parolası koda gömülü** (`DataInitializer`); ilk kurulumda
-  zorunlu parola değişikliği akışı yok.
-- **CORS adresi koda gömülü**; ortam değişkenine taşınmalı.
-- **Veritabanı şeması `ddl-auto=update` ile yönetiliyor**; Flyway/Liquibase'e geçilmeli.
+Backend'e ilişkin planlanan adımlar kökteki
+[Gelecek çalışmalar](../README.md#gelecek-çalışmalar) bölümünde listelenmiştir.
 
 ## Lisans
 

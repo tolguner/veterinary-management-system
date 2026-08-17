@@ -14,8 +14,8 @@ paneli üzerinden sisteme erişir. Kimlik doğrulama JWT ile, yetkilendirme rol 
 ![Durum](https://img.shields.io/badge/durum-geliştirme%20aşamasında-orange?style=flat-square)
 
 > **Durum:** Geliştirme aşamasında, üretime hazır değildir. Backend derleniyor, frontend
-> build alıyor ve temel akışlar çalışır durumda. Otomatik test ve API dokümantasyonu yok
-> — ayrıntı için [Eksikler](#eksikler).
+> build alıyor ve temel akışlar çalışır durumda. Otomatik test ve API dokümantasyonu henüz
+> yok — planlanan adımlar için [Gelecek çalışmalar](#gelecek-çalışmalar).
 
 ---
 
@@ -28,7 +28,7 @@ paneli üzerinden sisteme erişir. Kimlik doğrulama JWT ile, yetkilendirme rol 
 - [Kurulum](#kurulum)
 - [API](#api)
 - [Proje yapısı](#proje-yapısı)
-- [Eksikler](#eksikler)
+- [Gelecek çalışmalar](#gelecek-çalışmalar)
 
 ---
 
@@ -277,28 +277,39 @@ POST /api/medical-records/1/analyze?analysisType=BLOOD_ANALYSIS
 
 ---
 
-## Eksikler
+## Gelecek çalışmalar
 
-Proje dürüstlük adına eksikleriyle birlikte yayımlanıyor.
+Proje bir yol haritasıyla ilerliyor. Maddeler önceliğe göre sıralanmıştır.
 
-### Backend
+### Kısa vade — kalite ve güvenlik temelleri
 
-- [ ] **Otomatik test yok** — `src/test` boş
-- [ ] **API dokümantasyonu yok** — Swagger/OpenAPI eklenmeli
-- [ ] **Global hata yönetimi zayıf** — controller'larda `try/catch` tekrarı var, `@ControllerAdvice` ile merkezileştirilmeli
-- [ ] **Girdi doğrulama eksik** — DTO'larda Bean Validation (`@Valid`, `@NotBlank`) kullanılmıyor
-- [ ] **Varsayılan admin parolası koda gömülü** — zorunlu değiştirme akışı yok
-- [ ] **CORS adresi koda gömülü** — ortam değişkenine taşınmalı
-- [ ] **Şema `ddl-auto=update` ile yönetiliyor** — Flyway/Liquibase'e geçilmeli
+- [ ] **Test altyapısı** — backend için JUnit + Testcontainers ile entegrasyon testleri, frontend için Testing Library ile bileşen testleri
+- [ ] **API dokümantasyonu** — Swagger/OpenAPI ile 131 ucun otomatik dokümantasyonu ve deneme arayüzü
+- [ ] **Merkezî hata yönetimi** — `@ControllerAdvice` ile controller'lardaki `try/catch` tekrarının kaldırılması, tutarlı hata gövdesi
+- [ ] **Girdi doğrulama** — DTO'larda Bean Validation (`@Valid`, `@NotBlank`) ile sunucu tarafı doğrulama
+- [ ] **İlk girişte zorunlu parola değiştirme** — varsayılan yönetici hesabı için
+- [ ] **CORS yapılandırmasının ortam değişkenine taşınması** — farklı ortamlarda dağıtımı mümkün kılmak için
+- [ ] **İstemci tarafı günlük temizliği** — `apiClient.js` içinde token içeriğini konsola yazan satırların kaldırılması
+- [ ] **Yinelenen sayfa dosyalarının birleştirilmesi** — `PetListFixed.js`, `MedicalRecordDashboard_New.js`
 
-### Frontend
+### Orta vade — olgunlaşma
 
-- [ ] **Otomatik test yok** — Testing Library kurulu ama test yazılmamış
-- [ ] **Konsol log'ları temizlenmeli** — `apiClient.js` token içeriğini konsola yazıyor
-- [ ] **Ortak hata/bildirim mekanizması yok**
-- [ ] **Yükleme durumu geri bildirimi eksik** — bazı ekranlarda istek beklenirken gösterge yok
-- [ ] **Erişilebilirlik gözden geçirilmedi**
-- [ ] **Tekrar eden sayfalar var** — `PetListFixed.js`, `MedicalRecordDashboard_New.js` gibi dosyalar temizlenmeli
+- [ ] **Veritabanı şema versiyonlama** — `ddl-auto=update` yerine Flyway veya Liquibase ile denetlenebilir göç (migration) akışı
+- [ ] **E-posta bildirimleri** — randevu onayı, hatırlatma ve tıbbi kayıt bildirimlerinin e-postaya bağlanması. *Altyapı hazır:* Observer deseni kayıt değişikliklerini zaten yakalıyor ve `spring-boot-starter-mail` bağımlılığı projede mevcut; şu an bildirimler yalnızca konsola yazılıyor
+- [ ] **Ortak bildirim ve hata mekanizması (frontend)** — sayfalar arası tutarlı toast/uyarı katmanı
+- [ ] **Yükleme durumu geri bildirimleri** — istek beklenirken skeleton ve gösterge
+- [ ] **Erişilebilirlik denetimi** — klavye gezinimi, ARIA etiketleri, renk kontrastı
+- [ ] **Rol bazlı yetkilendirmenin inceltilmesi** — uç bazında daha ayrıntılı izin denetimi
+
+### Uzun vade — yeni yetenekler
+
+- [ ] **Docker Compose ile tek komut kurulum** — MySQL, backend ve frontend'i birlikte ayağa kaldırma
+- [ ] **CI/CD** — GitHub Actions ile derleme, test ve dağıtım hattı
+- [ ] **Dosya yükleme** — röntgen görüntüleri ve tahlil sonucu belgelerinin tıbbi kayda eklenmesi
+- [ ] **Raporlama ve analitik** — klinik doluluk oranı, gelir takibi, en sık görülen teşhisler
+- [ ] **Mobil uyumlu arayüz / PWA** — sahada tablet ve telefon kullanımı için
+- [ ] **Çoklu klinik desteği** — birden fazla şubenin tek sistem üzerinden yönetimi
+- [ ] **Aşı takvimi hatırlatmaları** — yaklaşan aşılar için otomatik uyarı
 
 ---
 
